@@ -16,12 +16,42 @@
   }
 }
 
+html {
+  margin: auto;
+}
+
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  width: 100vw;
+  background-color: #131314;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%239C92AC' fill-opacity='0.4' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E");
+  background-attachment: fixed;
+}
+/* 
+@media screen and (min-width:600px) {
+  body {
+    position: relative;
+    background-color: red;
+    color: rgb(var(--foreground-rgb));
+    background: linear-gradient(
+        to bottom,
+        transparent,
+        rgb(var(--background-end-rgb))
+      )
+      rgb(var(--background-start-rgb));
+    max-width: 600px;
+  }  
+} */
+
+
+
+/* BUTTON */
+button:active { filter: blur(1px) !important }
+canvas {
+  /* Ink ripple color */
+  color: auto;
+}
+
+/* MODAL */
+.modal {
+  transition: opacity 0.2s ease-in-out;
 }
