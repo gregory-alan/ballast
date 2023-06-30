@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Sound",
+  "type": "object",
+  "properties": {
+    "slug": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "fx",
+        "music",
+        "ambient"
+      ]
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "howl",
+        "toneplayer"
+      ]
+    },
+    "color": {
+      "type": "string",
+      "format": "color"
+    },
+    "loop": {
+      "type": "boolean",
+      "default": false
+    },
+    "start": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100000
+    },
+    "end": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100000
+    },
+    "verticalSync": {
+      "type": "string"
+    }
+  },
+  "required": ["slug", "type", "color", "loop", "start", "end"]
+}
