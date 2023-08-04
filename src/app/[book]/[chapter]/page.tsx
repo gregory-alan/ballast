@@ -1,14 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import {
-  useState,
-  useEffect,
-  Suspense,
-  createContext,
-  useContext,
-  use,
-} from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 
 import SoundClient from 'ballast/app/components/SoundClient';
@@ -18,22 +11,10 @@ import Button from 'ballast/app/components/Button';
 import LinkButton from 'ballast/app/components/LinkButton';
 import ButtonsBar from 'ballast/app/components/ButtonsBar';
 
-import { SoundClientStatus, Sounds } from 'ballast/types/AudioService';
+import { Sounds } from 'ballast/types/AudioService';
 import { Images } from 'ballast/types/Image';
 
-///////////////////////
-// SOUND CLIENT CONTEXT
-///////////////////////
-const DEFAULT_SOUNDCLIENT_STATUS = {
-  state: 'suspended',
-  muted: true,
-} as SoundClientStatus;
-const SoundClientContext = createContext(DEFAULT_SOUNDCLIENT_STATUS);
-
-//////////
-// MAIN
-//////////
-export default function Reader({
+export default function Home({
   params,
 }: {
   params: { book: string; chapter: string };
@@ -44,16 +25,11 @@ export default function Reader({
   const [modalVisible, toggleModalVisibility] = useState<boolean>(true);
   const [sounds, setSounds] = useState<Sounds>([]);
   const [images, setImages] = useState<Images>([]);
-
   const book = params.book;
   const chapter = params.chapter;
   const router = useRouter();
   const searchParams = useSearchParams();
   const soundLines = searchParams.get('soundlines');
-
-  const [soundClientStatus, setSoundClientStatus] = useState<SoundClientStatus>(
-    DEFAULT_SOUNDCLIENT_STATUS
-  );
 
   // DATA IMPORT
   useEffect(() => {
@@ -99,67 +75,63 @@ export default function Reader({
   };
 
   return (
-    <SoundClientContext.Provider value={soundClientStatus}>
-      <main className="flex max-w-md">
-        {images.length > 0 && (
-          <div className="flex-1 relative">
-            {images.map((image) => (
-              <Image
-                key={image.source}
-                className="relative"
-                src={`/images/${book}/${chapter}/${image.source}`}
-                alt="Next.js Logo"
-                width={10000}
-                height={1}
-                priority
-              />
-            ))}
-            <Modal
-              top={150}
-              width={93}
-              height={93 * (865 / 1086)}
-              backgroundSource="modal.webp"
-              isVisible={modalVisible}
-            >
-              <Suspense fallback={<></>}>
-                <Button
-                  top={48}
-                  width={60}
-                  onClick={modalClickHandler}
-                  text="activer le son"
-                />
-              </Suspense>
-            </Modal>
-            <ButtonsBar
-              top={4}
-              right={4}
-              width={10}
-              audioMuted={audioMuted}
-              muteAudioHandler={muteAudioHandler}
-              isOpen={isButtonsBarOpen}
-              onExit={onExit}
-              clickHandler={buttonsBarClickHandler}
+    <main className="flex max-w-md">
+      {images.length > 0 && (
+        <div className="flex-1 relative">
+          {images.map((image) => (
+            <Image
+              key={image.source}
+              className="relative"
+              src={`/images/${book}/${chapter}/${image.source}`}
+              alt="Next.js Logo"
+              width={10000}
+              height={1}
+              priority
             />
-            <LinkButton
-              top={408}
-              width={50}
-              href={`/${book}/chapter2`}
-              text="Chapitre 2"
-              onClick={onExit}
-            />
-            {soundClientActive && (
-              <SoundClient
-                context={SoundClientContext}
-                setSoundClientStatus={setSoundClientStatus}
-                sounds={sounds}
-                muted={audioMuted}
-                showSoundLines={soundLines === 'true' || false}
-                activeSoundClient={activeSoundClient}
+          ))}
+          <Modal
+            top={150}
+            width={93}
+            height={93 * (865 / 1086)}
+            backgroundSource="modal.webp"
+            isVisible={modalVisible}
+          >
+            <Suspense fallback={<></>}>
+              <Button
+                top={48}
+                width={60}
+                onClick={modalClickHandler}
+                text="activer le son"
               />
-            )}
-          </div>
-        )}
-      </main>
-    </SoundClientContext.Provider>
+            </Suspense>
+          </Modal>
+          <ButtonsBar
+            top={4}
+            right={4}
+            width={10}
+            audioMuted={audioMuted}
+            muteAudioHandler={muteAudioHandler}
+            isOpen={isButtonsBarOpen}
+            onExit={onExit}
+            clickHandler={buttonsBarClickHandler}
+          />
+          <LinkButton
+            top={408}
+            width={50}
+            href={`/${book}/chapter2`}
+            text="Chapitre 2"
+            onClick={onExit}
+          />
+          {soundClientActive && (
+            <SoundClient
+              sounds={sounds}
+              muted={audioMuted}
+              showSoundLines={soundLines === 'true' || false}
+              activeSoundClient={activeSoundClient}
+            />
+          )}
+        </div>
+      )}
+    </main>
   );
 }

@@ -1,31 +1,18 @@
-import {
-  useEffect,
-  useRef,
-  useState,
-  useContext,
-  Context,
-  SetStateAction,
-  Dispatch,
-} from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AudioService } from 'ballast/services/audio';
 import {
   AudioServiceInstance,
   SoundAction,
-  SoundClientStatus,
   SoundKind,
 } from 'ballast/types/AudioService';
 import SoundLines from 'ballast/app/components/SoundLines';
 
 export default function SoundsClient({
-  context,
-  setSoundClientStatus,
   sounds,
   muted,
   showSoundLines,
   activeSoundClient,
 }: {
-  context: Context<SoundClientStatus>;
-  setSoundClientStatus: Dispatch<SetStateAction<SoundClientStatus>>;
   sounds: any;
   muted: boolean;
   showSoundLines: boolean;
@@ -33,8 +20,6 @@ export default function SoundsClient({
 }) {
   const Audio = useRef<AudioServiceInstance | null>(null);
   const [soundLinesActivated, activateSoundLines] = useState<boolean>(false);
-  const soundClientStatus = useContext(context);
-  console.log('✅', soundClientStatus);
 
   useEffect(() => {
     const init = async () => {
@@ -43,11 +28,11 @@ export default function SoundsClient({
       await Audio.current.startAudioContext(
         () => {
           console.log('suspended');
-          setSoundClientStatus({ ...soundClientStatus, state: 'suspended' });
+          activeSoundClient(false);
         },
         () => {
           console.log('running');
-          setSoundClientStatus({ ...soundClientStatus, state: 'running' });
+          activeSoundClient(true);
         }
       );
       Audio.current.createAudioResources();
@@ -60,13 +45,7 @@ export default function SoundsClient({
       Audio.current?.stopAllAudioResources();
       Audio.current?.removeAllAudioResources();
     };
-  }, [
-    Audio,
-    sounds,
-    activateSoundLines,
-    soundClientStatus,
-    setSoundClientStatus,
-  ]);
+  }, [Audio, sounds, activateSoundLines, activeSoundClient]);
 
   useEffect(() => {
     Audio.current && Audio.current.muteAllAudioResources(muted);
