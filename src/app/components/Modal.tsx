@@ -51,7 +51,7 @@ const Modal = ({
         width: dimensions?.width,
         height: dimensions?.height,
         backgroundImage: `url(/images/${backgroundSource})`,
-        backgroundSize: 'contain',
+        backgroundSize: 'cover',
         backgroundRepeat: 'no-repeat',
         borderRadius: '2px',
         zIndex: 100,

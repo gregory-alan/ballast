@@ -9,14 +9,14 @@ import {
 } from 'ballast/types/AudioService';
 import SoundLines from 'ballast/app/components/SoundLines';
 
-const SOUNDLINES_VISIBILITY = true;
-
 export default function SoundsClient({
   sounds,
   muted,
+  showSoundLines,
 }: {
   sounds: any;
   muted: boolean;
+  showSoundLines: boolean;
 }) {
   const Audio = useRef<AudioServiceInstance | null>(null);
   const [soundLinesActivated, activateSoundLines] = useState<boolean>(false);
@@ -47,6 +47,7 @@ export default function SoundsClient({
       <>
         <SoundLines
           sounds={sounds}
+          isVisible={showSoundLines}
           onEnter={(action: SoundAction, slug: string, kind: SoundKind) => {
             console.log(
               `enter: ${
@@ -69,7 +70,6 @@ export default function SoundsClient({
               Audio.current?.muteAudioResource(slug, true);
             }
           }}
-          isVisible={SOUNDLINES_VISIBILITY}
         />
       </>
     )
