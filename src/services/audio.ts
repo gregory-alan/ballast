@@ -1,10 +1,7 @@
 import * as Tone from 'tone';
 import { Howl } from 'howler';
 
-import {
-  AudioResource,
-  Sounds,
-} from 'ballast/types/AudioService';
+import { AudioResource, Sounds } from 'ballast/types/AudioService';
 
 export const AudioService = (sounds: Sounds) => {
   ///////////
@@ -32,19 +29,31 @@ export const AudioService = (sounds: Sounds) => {
   ////////////
   // METHODS
   ////////////
-  const startAudioContext = () => {
-    console.log('🔈', Tone.context.state);
-    // if (Tone.context.state !== 'running') {
-    //   Tone.context.resume();
-    // }
+  const startAudioContext = (
+    onAudioContextSuspended: () => void,
+    onAudioContextRunning: () => void
+  ) => {
     Tone.start();
-  }
+    setTimeout(() => {
+      console.log(Tone.context.state);
+      if (Tone.context.state === 'running') {
+        onAudioContextRunning();
+      }
+    }, 1000)
+    if (Tone.context.state !== 'running') {
+      onAudioContextSuspended();
+    }
+  };
 
   const createHowlerAudioResource = (sound: Omit<AudioResource, 'object'>) => {
     const { slug, loop, onCreated, onLoaded, onMuted } = sound;
     try {
       const howl = new Howl({
-        src: [`/sounds/${slug}.webm`, `/sounds/${slug}.aac`, `/sounds/${slug}.mp3`], // 🧐 I DUNNO WHY BUT WEBM DOES NOT WORK ON MOBILE!!!!
+        src: [
+          `/sounds/${slug}.webm`,
+          `/sounds/${slug}.aac`,
+          `/sounds/${slug}.mp3`,
+        ], // 🧐 I DUNNO WHY BUT WEBM DOES NOT WORK ON MOBILE!!!!
         html5: true,
         mute: false,
         loop: loop,
@@ -113,16 +122,23 @@ export const AudioService = (sounds: Sounds) => {
             return;
           }
           if (!muted) {
-            player.volume.setValueCurveAtTime([-60, -6], Tone.now(), TONE_FADE_IN);
+            player.volume.setValueCurveAtTime(
+              [-60, -6],
+              Tone.now(),
+              TONE_FADE_IN
+            );
           } else {
-            player.volume.setValueCurveAtTime([-6, -60], Tone.now(), TONE_FADE_OUT);
-
+            player.volume.setValueCurveAtTime(
+              [-6, -60],
+              Tone.now(),
+              TONE_FADE_OUT
+            );
           }
           resource.onMuted && resource.onMuted(resource);
           break;
       }
     }
-  }
+  };
 
   const _stop = (resource?: AudioResource, dispose?: boolean) => {
     if (resource) {
@@ -171,7 +187,7 @@ export const AudioService = (sounds: Sounds) => {
           if (player.loaded) {
             player.start();
           }
-           // we could fallback to howler for a default html5 audio for all the vertical cues?
+          // we could fallback to howler for a default html5 audio for all the vertical cues?
           // else {
           //   // we fallback to howler for html5 audio
           //   resource.kind = 'howl';
@@ -179,7 +195,7 @@ export const AudioService = (sounds: Sounds) => {
           //   removeAudioResource(resource.slug);
           //   const fallbackResource = {
           //     ...resource,
-          //     onLoaded: (resource: AudioResource) => 
+          //     onLoaded: (resource: AudioResource) =>
           //     {
           //       muteAudioResource(resource.slug, false);
           //       playAudioResource(resource.slug);
@@ -202,7 +218,6 @@ export const AudioService = (sounds: Sounds) => {
     const resources = Array.from(getAllAudioResources());
     resources.forEach((resource) => _stop(resource, dispose));
   };
-
 
   return {
     startAudioContext,

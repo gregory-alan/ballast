@@ -35,3 +35,5 @@ export type AudioResourceEventHandlers = {
 };
 
 export type AudioServiceInstance = ReturnType<typeof AudioService>;
+
+export type SoundClientStatus = { state: 'suspended' | 'running'; muted: boolean };

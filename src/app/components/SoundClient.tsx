@@ -1,31 +1,55 @@
-'use client';
-
-import { useEffect, useRef, useState } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  useContext,
+  Context,
+  SetStateAction,
+  Dispatch,
+} from 'react';
 import { AudioService } from 'ballast/services/audio';
 import {
   AudioServiceInstance,
   SoundAction,
+  SoundClientStatus,
   SoundKind,
 } from 'ballast/types/AudioService';
 import SoundLines from 'ballast/app/components/SoundLines';
 
 export default function SoundsClient({
+  context,
+  setSoundClientStatus,
   sounds,
   muted,
   showSoundLines,
+  activeSoundClient,
 }: {
+  context: Context<SoundClientStatus>;
+  setSoundClientStatus: Dispatch<SetStateAction<SoundClientStatus>>;
   sounds: any;
   muted: boolean;
   showSoundLines: boolean;
+  activeSoundClient: (b: boolean) => void;
 }) {
   const Audio = useRef<AudioServiceInstance | null>(null);
   const [soundLinesActivated, activateSoundLines] = useState<boolean>(false);
+  const soundClientStatus = useContext(context);
+  console.log('✅', soundClientStatus);
 
   useEffect(() => {
     const init = async () => {
-      // console.log('creating Audio Service and initializing Audio Context');
+      console.log('creating Audio Service and initializing Audio Context');
       Audio.current = AudioService(sounds);
-      await Audio.current.startAudioContext();
+      await Audio.current.startAudioContext(
+        () => {
+          console.log('suspended');
+          setSoundClientStatus({ ...soundClientStatus, state: 'suspended' });
+        },
+        () => {
+          console.log('running');
+          setSoundClientStatus({ ...soundClientStatus, state: 'running' });
+        }
+      );
       Audio.current.createAudioResources();
       setTimeout(() => activateSoundLines(true), 500);
     };
@@ -36,7 +60,13 @@ export default function SoundsClient({
       Audio.current?.stopAllAudioResources();
       Audio.current?.removeAllAudioResources();
     };
-  }, [Audio, sounds, activateSoundLines]);
+  }, [
+    Audio,
+    sounds,
+    activateSoundLines,
+    soundClientStatus,
+    setSoundClientStatus,
+  ]);
 
   useEffect(() => {
     Audio.current && Audio.current.muteAllAudioResources(muted);
