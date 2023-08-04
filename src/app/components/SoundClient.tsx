@@ -23,7 +23,7 @@ export default function SoundsClient({
 
   useEffect(() => {
     const init = async () => {
-      console.log('creating Audio Service and initializing Audio Context');
+      // console.log('creating Audio Service and initializing Audio Context');
       Audio.current = AudioService(sounds);
       await Audio.current.startAudioContext();
       Audio.current.createAudioResources();
@@ -49,24 +49,24 @@ export default function SoundsClient({
           sounds={sounds}
           isVisible={showSoundLines}
           onEnter={(action: SoundAction, slug: string, kind: SoundKind) => {
-            console.log(
-              `enter: ${
-                action === 'play' ? 'play' : 'unmute'
-              } the ${kind} ${slug}`
-            );
+            // console.log(
+            //   `enter: ${
+            //     action === 'play' ? 'play' : 'unmute'
+            //   } the ${kind} ${slug}`
+            // );
             if (action === 'play') {
               Audio.current?.playAudioResource(slug);
-            } else if (action === 'mute') {
+            } else if (action === 'mute' && !muted) {
               Audio.current?.muteAudioResource(slug, false);
             }
           }}
           onExit={(action: SoundAction, slug: string, kind: SoundKind) => {
-            console.log(
-              `exit: ${action === 'play' ? 'stop' : 'mute'} the ${kind} ${slug}`
-            );
+            // console.log(
+            //   `exit: ${action === 'play' ? 'stop' : 'mute'} the ${kind} ${slug}`
+            // );
             if (action === 'play') {
               Audio.current?.stopAudioResource(slug);
-            } else if (action === 'mute') {
+            } else if (action === 'mute' && !muted) {
               Audio.current?.muteAudioResource(slug, true);
             }
           }}

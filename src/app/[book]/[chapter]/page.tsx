@@ -19,7 +19,7 @@ export default function Home({
 }: {
   params: { book: string; chapter: string };
 }) {
-  const [audioContextActive, activeAudioContext] = useState<boolean>(false);
+  const [soundClientActive, activeSoundClient] = useState<boolean>(false);
   const [audioMuted, muteAudio] = useState<boolean>(true);
   const [isButtonsBarOpen, openButtonsBar] = useState<boolean>(false);
   const [modalVisible, toggleModalVisibility] = useState<boolean>(true);
@@ -35,10 +35,7 @@ export default function Home({
   useEffect(() => {
     // IMAGES
     import(`ballast/data/books/${book}/${chapter}/images.json`)
-      .then(({ default: images }: { default: Images }) => {
-        setImages(images);
-        console.log(images);
-      })
+      .then(({ default: images }: { default: Images }) => setImages(images))
       .catch(() => {
         router.push('/404');
       });
@@ -57,21 +54,20 @@ export default function Home({
   /////////////
   const buttonsBarClickHandler = () => openButtonsBar(!isButtonsBarOpen);
   const onExit = () => {
-    console.log('audioContext', false);
-    activeAudioContext(false);
+    activeSoundClient(false);
   };
 
   const modalClickHandler = () => {
-    activeAudioContext(true);
+    activeSoundClient(true);
     muteAudio(false);
     setTimeout(() => toggleModalVisibility(false), 200);
     openButtonsBar(true);
   };
 
   const muteAudioHandler = () => {
-    if (!audioContextActive) {
+    if (!soundClientActive) {
       muteAudio(false);
-      activeAudioContext(true);
+      activeSoundClient(true);
       toggleModalVisibility(false);
       return;
     }
@@ -126,7 +122,7 @@ export default function Home({
             text="Chapitre 2"
             onClick={onExit}
           />
-          {audioContextActive && (
+          {soundClientActive && (
             <SoundClient
               sounds={sounds}
               muted={audioMuted}

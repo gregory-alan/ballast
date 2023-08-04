@@ -32,7 +32,13 @@ export const AudioService = (sounds: Sounds) => {
   ////////////
   // METHODS
   ////////////
-  const startAudioContext = () => Tone.start();
+  const startAudioContext = () => {
+    console.log('🔈', Tone.context.state);
+    // if (Tone.context.state !== 'running') {
+    //   Tone.context.resume();
+    // }
+    Tone.start();
+  }
 
   const createHowlerAudioResource = (sound: Omit<AudioResource, 'object'>) => {
     const { slug, loop, onCreated, onLoaded, onMuted } = sound;
@@ -44,8 +50,8 @@ export const AudioService = (sounds: Sounds) => {
         loop: loop,
         onmute: () => onMuted && onMuted(getAudioResource(slug)),
         onload: () => onLoaded?.(sound),
-        onplay: () => console.log('played'),
-        onplayerror: () => console.error('play error'),
+        onplay: () => {},
+        onplayerror: () => {},
       });
 
       const resource = {
