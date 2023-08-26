@@ -66,10 +66,9 @@ const ButtonsBar = ({
           boxSizing: 'border-box',
           zIndex: 201,
           overflow: 'visible',
-          borderLeft: '2px solid white',
           backgroundSize: 'cover',
           backgroundRepeat: 'no-repeat',
-          backgroundImage: 'url(/images/logo-icon.png)',
+          backgroundImage: 'url(/images/logo-icon.svg)',
           filter: 'grayscale(0.3)',
         }}
       >
@@ -78,14 +77,14 @@ const ButtonsBar = ({
       <div
         className="buttons-container"
         style={{
-          opacity: 1,
+          opacity: isOpen ? 1 : 0,
           overflow: 'hidden',
           position: 'fixed',
           display: 'flex',
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'flex-start',
-          paddingLeft: '10px',
+          paddingLeft: isOpen ? '10px' : 0,
           top: dimensions?.top,
           height: dimensions?.height,
           right: dimensions?.containerRight,
@@ -96,6 +95,7 @@ const ButtonsBar = ({
           boxSizing: 'border-box',
           zIndex: 200,
           border: '1px solid #eeeeeeee',
+          borderRight: 'none',
           backgroundColor: '#080908',
           filter: 'grayscale(0.3)',
           transition: 'all 300ms',
