@@ -59,7 +59,7 @@ const LinkButton = ({
           width: `${width}%`,
           backgroundColor:
             theme !== 'bright'
-              ? 'rgba(255, 255, 255, 0.78)'
+              ? 'rgba(255, 255, 255, 0.98)'
               : 'rgba(0, 0, 0, 0.18)',
           borderRadius: '2px',
           textAlign: 'center',

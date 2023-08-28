@@ -71,7 +71,7 @@ const ButtonsBar = ({
           backgroundSize: 'cover',
           backgroundRepeat: 'no-repeat',
           backgroundImage: 'url(/images/logo-icon.svg)',
-          filter: 'grayscale(0.3)',
+          filter: 'grayscale(1)',
         }}
       >
         <Ink />
@@ -98,7 +98,7 @@ const ButtonsBar = ({
           zIndex: 200,
           border: '1px solid #eeeeeeee',
           borderRight: 'none',
-          backgroundColor: '#080908',
+          background: 'linear-gradient(90deg, rgba(8,9,8,1) 0%, rgba(8,9,8,1) 86%, rgba(8,9,8,0) 100%)',
           filter: 'grayscale(0.3)',
           transition: 'all 300ms',
         }}

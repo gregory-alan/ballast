@@ -37,6 +37,7 @@ export default function Book({
           position: 'absolute',
           bottom: 0,
           display: 'grid',
+          gridGap: '3px',
           width: '100vw',
           gridTemplateColumns: '1fr 1fr 1fr',
           zIndex: 1002,

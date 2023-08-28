@@ -22,6 +22,7 @@ const ChapterSquare = ({
         style={{
           aspectRatio: 1,
           backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          border: '2px solid white',
           fontFamily: 'Futura',
           fontWeight: 'bold',
           textShadow:
@@ -34,7 +35,7 @@ const ChapterSquare = ({
           textAlign: 'center',
           padding: '7px',
           backgroundImage: `url(${chapter.vignette})`,
-          backgroundSize: 'contain',
+          backgroundSize: 'cover',
           backdropFilter: 'contrast(2)',
         }}
       >

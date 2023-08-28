@@ -12,7 +12,7 @@ import ButtonsBar from 'ballast/app/components/ButtonsBar';
 import { Sounds } from 'ballast/types/AudioService';
 import { Images } from 'ballast/types/Image';
 
-const HIDE_DURATION = 1000;
+const HIDE_DURATION = 3000;
 const Chapter = ({
   book,
   chapter,
