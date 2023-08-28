@@ -21,6 +21,7 @@
     "react-dom": "18.2.0",
     "react-ink": "^6.5.4",
     "react-intersection-observer": "^9.5.2",
+    "react-loader-spinner": "^5.3.4",
     "tailwindcss": "3.3.2",
     "tone": "^14.7.77",
     "typescript": "5.1.6"

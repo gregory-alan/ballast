@@ -1,10 +1,8 @@
 'use client';
 
 import Image from 'next/image';
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-
-import SoundClient from 'ballast/app/components/SoundClient';
 
 import Modal from 'ballast/app/components/Modal';
 import Button from 'ballast/app/components/Button';
@@ -13,21 +11,6 @@ import ButtonsBar from 'ballast/app/components/ButtonsBar';
 
 import { Sounds } from 'ballast/types/AudioService';
 import { Images } from 'ballast/types/Image';
-
-const Splash = () => {
-  return (
-    <>
-      <Image
-        className="relative"
-        src={`/images/logo.svg`}
-        alt="Ballast (logo)"
-        width={200}
-        height={1}
-        priority
-      />
-    </>
-  );
-};
 
 const Chapter = ({
   book,
@@ -48,7 +31,6 @@ const Chapter = ({
 
   // DATA IMPORT
   useEffect(() => {
-    console.log('new page');
     // IMAGES
     import(`ballast/data/books/${book}/${chapter}/images.json`)
       .then(({ default: images }: { default: Images }) => setImages(images))
@@ -90,13 +72,6 @@ const Chapter = ({
 
   return (
     <main className="flex max-w-md">
-      {/* SOUND CLIENT */}
-      <SoundClient
-        sounds={sounds}
-        muted={audioMuted}
-        showSoundLines={showSoundLines || false}
-        activeSoundClient={activeSoundClient}
-      />
       {/* IMAGES */}
       <div className="flex-1 relative">
         {images.map((image) => (
@@ -124,8 +99,8 @@ const Chapter = ({
         <LinkButton
           top={408}
           width={50}
-          href={`/${book}/chapter2`}
-          text="Chapitre 2"
+          href={`/${book}/chapter${chapter === '2' ? 1 : 2}`}
+          text="Chapitre Suivant"
           onClick={onExit}
         />
       </div>
@@ -159,11 +134,7 @@ export default function Home({
   const searchParams = useSearchParams();
   const showSoundLines = searchParams.get('soundlines') === 'true';
 
-  const [splashDisplayed, showSplash] = useState<boolean>(true);
-
-  return splashDisplayed ? (
-    <Splash />
-  ) : (
+  return (
     <Chapter book={book} chapter={chapter} showSoundLines={showSoundLines} />
   );
 }

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 463 54" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g transform="matrix(1,0,0,0.825617,-5.9952e-15,1.17327e-14)">
+        <rect id="Artboard3" x="0" y="-0" width="462.988" height="65.044" style="fill:none;"/>
+        <g id="Artboard31" serif:id="Artboard3">
+            <g transform="matrix(0.710096,0,0,0.860079,-27.976,-469.526)">
+                <g transform="matrix(95.8566,0,0,95.8566,588.464,617.102)">
+                </g>
+                <text x="37.097px" y="617.102px" style="font-family:'AvenirNextCondensed-Heavy', 'Avenir Next Condensed', sans-serif;font-weight:900;font-stretch:condensed;font-size:95.857px;fill:rgb(243,243,243);">CHARGEMENT</text>
+            </g>
+            <g transform="matrix(1,0,0,1.21122,-69.3887,-942.207)">
+                <circle cx="475.797" cy="822.087" r="7.73" style="fill:rgb(243,243,243);"><animate
+                    attributeName="opacity"
+                    dur="1s"
+                    values="0;1;0"
+                    repeatCount="indefinite"
+                    begin="0.1"/></circle>
+            </g>
+            <g transform="matrix(1,0,0,1.21122,-44.8785,-942.207)">
+                <circle cx="475.797" cy="822.087" r="7.73" style="fill:rgb(243,243,243);"><animate
+                    attributeName="opacity"
+                    dur="1s"
+                    values="0;1;0"
+                    repeatCount="indefinite"
+                    begin="0.2"/></circle>
+            </g>
+            <g transform="matrix(1,0,0,1.21122,-20.5389,-942.207)">
+                <circle cx="475.797" cy="822.087" r="7.73" style="fill:rgb(243,243,243);"><animate
+                    attributeName="opacity"
+                    dur="1s"
+                    values="0;1;0"
+                    repeatCount="indefinite"
+                    begin="0.3"/></circle>
+            </g>
+        </g>
+    </g>
+</svg>

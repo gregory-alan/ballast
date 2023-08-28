@@ -51,16 +51,16 @@ export const AudioService = (sounds: Sounds) => {
       const howl = new Howl({
         src: [
           `/sounds/${slug}.webm`,
-          `/sounds/${slug}.aac`,
-          `/sounds/${slug}.mp3`,
+          // `/sounds/${slug}.aac`,
+          // `/sounds/${slug}.mp3`,
         ], // 🧐 I DUNNO WHY BUT WEBM DOES NOT WORK ON MOBILE!!!!
         html5: true,
         mute: false,
         loop: loop,
         onmute: () => onMuted && onMuted(getAudioResource(slug)),
         onload: () => onLoaded?.(sound),
-        onplay: () => {},
-        onplayerror: () => {},
+        onplay: () => console.log('playing', slug),
+        onplayerror: (e) => console.error(e, slug),
       });
 
       const resource = {
@@ -186,6 +186,8 @@ export const AudioService = (sounds: Sounds) => {
           const player = resource.object as Tone.Player;
           if (player.loaded) {
             player.start();
+          } else {
+            console.error('not loaded', slug);
           }
           // we could fallback to howler for a default html5 audio for all the vertical cues?
           // else {

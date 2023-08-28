@@ -10,13 +10,15 @@ type ClickHandler = () => void;
 
 const LinkButton = ({
   top,
+  bottom,
   width,
   text,
   href,
   onClick,
   theme,
 }: {
-  top: number;
+  top?: number;
+  bottom: number;
   width: number;
   text: string;
   href: string;
@@ -25,6 +27,7 @@ const LinkButton = ({
 }) => {
   const [dimensions, setDimensions] = useState<{
     top: string;
+    bottom: string;
     left: string;
     fontSize: string;
     lineHeight: string;
@@ -33,13 +36,14 @@ const LinkButton = ({
   useEffect(() => {
     setDimensions(
       computeBoxModel({
-        top,
+        top: top || 0,
+        bottom: bottom || 0,
         left: (100 - width) / 2,
         fontSize: 5,
         lineHeight: 5,
       })
     );
-  }, [top, width]);
+  }, [top, bottom, width]);
 
   return (
     <Link href={href}>
@@ -48,7 +52,8 @@ const LinkButton = ({
         className="button"
         style={{
           position: 'absolute',
-          top: dimensions?.top,
+          top: top !== undefined ? dimensions?.top : top,
+          bottom: bottom !== undefined ? dimensions?.bottom : bottom,
           height: 'auto',
           left: dimensions?.left,
           width: `${width}%`,
