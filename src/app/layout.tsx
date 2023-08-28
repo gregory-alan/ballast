@@ -18,26 +18,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.className} w-full h-full relative flex flex-col items-center justify-center`}
+        className={`${inter.className} w-full relative flex flex-col items-center justify-center`}
+        style={{height: 'auto'}}
       >
-        <div className="splash">
-          <Image
-            className="relative"
-            src={`/images/logo-with-catchphrase.svg`}
-            alt="Ballast (logo)"
-            width={200}
-            height={1}
-            priority
-          />
-          <Image
-            className="relative"
-            src={`/images/loading.svg`}
-            alt="Chargement"
-            style={{marginTop: '10vh'}}
-            width={200}
-            height={1}
-          />
-        </div>
         {children}
       </body>
     </html>

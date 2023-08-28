@@ -1,38 +1,58 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import { AudioService } from 'ballast/services/audio';
-import { Sound } from 'ballast/types/AudioService';
+import { useEffect, useState } from 'react';
+import Image from 'next/image';
+import Cover from 'ballast/app/components/Cover';
+import ChapterSquare from 'ballast/app/components/ChapterSquare';
+import Splash from 'ballast/app/components/Splash';
+import { Sounds } from 'ballast/types/AudioService';
 
-export default function Home() {
-  const AS = useRef<ReturnType<typeof AudioService>>();
+type ChapterInfo = { title: string; number: number; slug: string };
 
+export default function Book({
+  params,
+}: {
+  params: { book: string; chapter: string };
+}) {
+  const book = params.book;
+  const [chapters, setChapters] = useState<ChapterInfo[]>([]);
+
+  // DATA IMPORT
   useEffect(() => {
-    const sounds = [
-      {
-        slug: '1',
-        type: 'music',
-        kind: 'toneplayer',
-        color: '#bbbbbb',
-        loop: false,
-        start: 0,
-        end: 300,
-        sessions: [[0, 300]],
-      },
-    ] as Sound[];
+    // SOUNDS
+    import(`ballast/data/books/${book}/infos.json`)
+      .then(({ default: infos }: { default: any }) => {
+        setChapters(infos.chapters);
+      })
+      .catch(() => {
+        // router.push('/404');
+      });
+  }, [book]);
 
-    AS.current = AudioService(sounds);
-    AS.current.createAudioResource(sounds[0]);
-  }, []);
-
-  const onClick = () =>
-    AS.current?.startAudioContext(
-      () => {},
-      () => {
-        AS.current?.muteAudioResource('1', false);
-        AS.current?.playAudioResource('1');
-      }
-    );
-
-  return <button onClick={onClick}>BUTTON</button>;
+  return (
+    <>
+      <Cover book={book} />
+      <div
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          display: 'grid',
+          width: '100vw',
+          gridTemplateColumns: '1fr 1fr 1fr',
+          zIndex: 1002,
+        }}
+      >
+        {chapters.map((chapter, i) => (
+          <ChapterSquare
+            key={i}
+            book={book}
+            chapter={{
+              ...chapter,
+              vignette: `/images/${book}/${chapter.slug}/vignette.webp`,
+            }}
+          />
+        ))}
+      </div>
+    </>
+  );
 }

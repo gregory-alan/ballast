@@ -1,0 +1,42 @@
+[
+  {
+    "slug": "2",
+    "type": "music",
+    "kind": "howl",
+    "color": "#c90d0d",
+    "loop": false,
+    "start": 0,
+    "end": 300,
+    "sessions": [[0, 300]]
+  },
+  {
+    "slug": "kick",
+    "type": "music",
+    "kind": "toneplayer",
+    "color": "#0dc90d",
+    "loop": false,
+    "start": 500,
+    "end": 1200,
+    "sessions": [[500, 900]]
+  },
+  {
+    "slug": "snare",
+    "type": "music",
+    "kind": "toneplayer",
+    "color": "#0d0dc9",
+    "loop": false,
+    "start": 500,
+    "end": 1200,
+    "sessions": [[700, 950]]
+  },
+  {
+    "slug": "cymbals",
+    "type": "music",
+    "kind": "toneplayer",
+    "color": "#c90dc9",
+    "loop": false,
+    "start": 500,
+    "end": 1200,
+    "sessions": [[600, 800]]
+  }
+]

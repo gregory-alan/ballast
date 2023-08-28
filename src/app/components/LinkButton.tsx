@@ -18,7 +18,7 @@ const LinkButton = ({
   theme,
 }: {
   top?: number;
-  bottom: number;
+  bottom?: number;
   width: number;
   text: string;
   href: string;

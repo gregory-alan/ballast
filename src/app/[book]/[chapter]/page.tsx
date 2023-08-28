@@ -12,6 +12,7 @@ import ButtonsBar from 'ballast/app/components/ButtonsBar';
 import { Sounds } from 'ballast/types/AudioService';
 import { Images } from 'ballast/types/Image';
 
+const HIDE_DURATION = 1000;
 const Chapter = ({
   book,
   chapter,
@@ -23,11 +24,16 @@ const Chapter = ({
 }) => {
   const router = useRouter();
 
+  const [visible, show] = useState<boolean>(false);
   const [audioMuted, muteAudio] = useState<boolean>(true);
   const [isButtonsBarOpen, openButtonsBar] = useState<boolean>(false);
   const [sounds, setSounds] = useState<Sounds>([]);
   const [images, setImages] = useState<Images>([]);
   const [soundClientActive, activeSoundClient] = useState<boolean>(true);
+
+  useEffect(() => {
+    setTimeout(() => show(true), HIDE_DURATION);
+  }, []);
 
   // DATA IMPORT
   useEffect(() => {
@@ -71,7 +77,13 @@ const Chapter = ({
   };
 
   return (
-    <main className="flex max-w-md">
+    <main
+      className="flex max-w-md"
+      style={{
+        opacity: visible ? 1 : 0,
+        transition: 'opacity 0.5s linear',
+      }}
+    >
       {/* IMAGES */}
       <div className="flex-1 relative">
         {images.map((image) => (
@@ -90,6 +102,7 @@ const Chapter = ({
           top={4}
           right={4}
           width={10}
+          book={book}
           audioMuted={audioMuted}
           muteAudioHandler={muteAudioHandler}
           isOpen={isButtonsBarOpen}
@@ -124,7 +137,7 @@ const Chapter = ({
   );
 };
 
-export default function Home({
+export default function Reader({
   params,
 }: {
   params: { book: string; chapter: string };

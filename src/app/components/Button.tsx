@@ -9,18 +9,22 @@ type ClickHandler = () => void;
 
 const Button = ({
   top,
+  bottom,
   width,
   text,
   onClick,
+  theme,
 }: {
-  top: number;
+  top?: number;
+  bottom?: number;
   width: number;
   text: string;
   onClick: ClickHandler;
-  loading?: boolean;
+  theme?: 'dark' | 'bright';
 }) => {
   const [dimensions, setDimensions] = useState<{
     top: string;
+    bottom: string;
     left: string;
     fontSize: string;
     lineHeight: string;
@@ -29,25 +33,30 @@ const Button = ({
   useEffect(() => {
     setDimensions(
       computeBoxModel({
-        top,
+        top: top || 0,
+        bottom: bottom || 0,
         left: (100 - width) / 2,
         fontSize: 5,
         lineHeight: 5,
       })
     );
-  }, [top, width]);
-  
+  }, [top, bottom, width]);
+
   return (
     <button
       className="button"
       onClick={onClick}
       style={{
         position: 'absolute',
-        top: dimensions?.top,
+        top: top !== undefined ? dimensions?.top : top,
+        bottom: bottom !== undefined ? dimensions?.bottom : bottom,
         height: 'auto',
         left: dimensions?.left,
         width: `${width}%`,
-        backgroundColor: 'rgba(0, 0, 0, 0.18)',
+        backgroundColor:
+        theme !== 'bright'
+          ? 'rgba(255, 255, 255, 0.78)'
+          : 'rgba(0, 0, 0, 0.18)',
         borderRadius: '2px',
         color: 'black',
         padding: '10px',

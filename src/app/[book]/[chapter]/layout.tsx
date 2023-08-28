@@ -1,8 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import SoundClient from 'ballast/app/components/SoundClient';
 import Cover from 'ballast/app/components/Cover';
+import Splash from 'ballast/app/components/Splash';
 import { Sounds } from 'ballast/types/AudioService';
 
 export default function ChapterLayout({
@@ -42,17 +44,12 @@ export default function ChapterLayout({
       });
   }, [book, chapter]);
 
-  console.log('pristine', pristine);
-
-  switch (pristine) {
-    // case true:
-    default:
-      return <Cover book={book} chapter={chapter} />;
-    // case false:
-    //   return <div>{children}</div>;
-    // default:
-    //   return null;
-  }
+  return (
+    <>
+      <Splash />
+      {children}
+    </>
+  );
 
   /* <SoundClient
       sounds={sounds}

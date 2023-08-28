@@ -15,17 +15,22 @@ const ICONS: { [key: string]: { active: string; inactive?: string } } = {
   home: {
     active: 'home.svg',
   },
+  book: {
+    active: 'book-icon.svg',
+  },
 };
 
 const BarButton = ({
   role,
   kind,
   width,
+  height,
   onClick = () => {},
   href = '/',
   active = false,
 }: {
   width: number;
+  height?: number;
   role: 'sound' | string;
   kind: 'toggle' | 'link' | 'button';
   onClick?: ClickHandler;
@@ -40,11 +45,11 @@ const BarButton = ({
   useEffect(() => {
     setDimensions(
       computeBoxModel({
-        height: width,
+        height: height || width,
         width,
       })
     );
-  }, [width]);
+  }, [width, height]);
 
   switch (kind) {
     case 'toggle': {
