@@ -8,6 +8,7 @@ import ChapterLarge from 'ballast/app/components/ChapterLarge';
 import Splash from 'ballast/app/components/Splash';
 import { Sounds } from 'ballast/types/AudioService';
 import Link from 'next/link';
+import ButtonsBar from 'ballast/app/components/ButtonsBar';
 
 type ChapterInfo = { title: string; number: number; slug: string };
 
@@ -38,14 +39,29 @@ export default function Book({
 
   return (
     <main className="flex max-w-md relative flex-col">
+      <ButtonsBar
+        top={4}
+        right={4}
+        width={10}
+        book={book}
+        audioMuted={false}
+        muteAudioHandler={() => {}}
+        isOpen={true}
+        onExit={() => {}}
+        clickHandler={() => {}}
+        hide={{sound: true, book: true}}
+      />
       <Cover book={book} />
       <div
         style={{
-          position: 'relative',
-          bottom: 0,
+          position: 'absolute',
+          bottom: '12vh',
           display: 'grid',
-          width: '100%',
-          gridTemplateColumns: '1fr 1fr',
+          width: '80%',
+          marginLeft: '10%',
+          rowGap: '10px',
+          columnGap: '10px',
+          gridTemplateColumns: '1fr 1fr 1fr 1fr',
           zIndex: 1002,
         }}
       >
@@ -56,18 +72,19 @@ export default function Book({
                 ...chapter,
                 vignette: `/images/${book}/${chapter.slug}/vignette.webp`,
               }}
+              invert={i % 2 === 0}
             />
           </Link>
         ))}
       </div>
-      {largeChapter && (
+      {/* {largeChapter && (
           <ChapterLarge
             chapter={{
               ...largeChapter,
               vignette: `/images/${book}/${largeChapter.slug}/vignette.webp`,
             }}
           />
-        )}
+        )} */}
     </main>
   );
 }

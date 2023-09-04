@@ -18,6 +18,7 @@ const ButtonsBar = ({
   clickHandler,
   muteAudioHandler,
   book,
+  hide,
 }: {
   top: number;
   right: number;
@@ -28,6 +29,7 @@ const ButtonsBar = ({
   clickHandler: () => void;
   muteAudioHandler: () => void;
   book?: string;
+  hide?: { book?: boolean; home?: boolean; sound?: boolean };
 }) => {
   const [dimensions, setDimensions] = useState<{
     top: string;
@@ -98,33 +100,40 @@ const ButtonsBar = ({
           zIndex: 200,
           border: '1px solid #eeeeeeee',
           borderRight: 'none',
-          background: 'linear-gradient(90deg, rgba(8,9,8,1) 0%, rgba(8,9,8,1) 86%, rgba(8,9,8,0) 100%)',
+          background:
+            'linear-gradient(90deg, rgba(8,9,8,1) 0%, rgba(8,9,8,1) 86%, rgba(8,9,8,0) 100%)',
           filter: 'grayscale(0.3)',
           transition: 'all 300ms',
         }}
       >
-        <BarButton
-          role="home"
-          kind="link"
-          href="/"
-          width={BUTTON_WIDTH}
-          onClick={onExit}
-        />
-        <BarButton
-          role="book"
-          kind="link"
-          href={`/${book}`}
-          onClick={onExit}
-          width={BUTTON_WIDTH}
-          height={BUTTON_WIDTH - 0.7}
-        />
-        <BarButton
-          role="sound"
-          kind="toggle"
-          active={audioMuted}
-          onClick={muteAudioHandler}
-          width={BUTTON_WIDTH}
-        />
+        {!hide?.home && (
+          <BarButton
+            role="home"
+            kind="link"
+            href="/"
+            width={BUTTON_WIDTH}
+            onClick={onExit}
+          />
+        )}
+        {!hide?.book && (
+          <BarButton
+            role="book"
+            kind="link"
+            href={`/${book}`}
+            onClick={onExit}
+            width={BUTTON_WIDTH}
+            height={BUTTON_WIDTH - 0.7}
+          />
+        )}
+        {!hide?.sound && (
+          <BarButton
+            role="sound"
+            kind="toggle"
+            active={audioMuted}
+            onClick={muteAudioHandler}
+            width={BUTTON_WIDTH}
+          />
+        )}
       </div>
     </>
   );
