@@ -6,6 +6,7 @@ import Cover from 'ballast/app/components/Cover';
 import ChapterSquare from 'ballast/app/components/ChapterSquare';
 import Splash from 'ballast/app/components/Splash';
 import { Sounds } from 'ballast/types/AudioService';
+import Link from 'next/link';
 
 type ChapterInfo = { title: string; number: number; slug: string };
 
@@ -44,14 +45,15 @@ export default function Book({
         }}
       >
         {chapters.map((chapter, i) => (
-          <ChapterSquare
-            key={i}
-            book={book}
-            chapter={{
-              ...chapter,
-              vignette: `/images/${book}/${chapter.slug}/vignette.webp`,
-            }}
-          />
+          <Link key={i} href={`/${book}/${chapter.slug}`}>
+            <ChapterSquare
+              book={book}
+              chapter={{
+                ...chapter,
+                vignette: `/images/${book}/${chapter.slug}/vignette.webp`,
+              }}
+            />
+          </Link>
         ))}
       </div>
     </>

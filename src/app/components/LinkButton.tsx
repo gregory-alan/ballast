@@ -65,6 +65,7 @@ const LinkButton = ({
           textAlign: 'center',
          color: 'black',
           padding: '10px',
+          fontFamily: 'Averta',
           fontSize: dimensions?.fontSize,
           lineHeight: dimensions?.lineHeight,
           fontWeight: 200,

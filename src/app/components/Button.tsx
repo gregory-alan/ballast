@@ -60,6 +60,7 @@ const Button = ({
         borderRadius: '2px',
         color: 'black',
         padding: '10px',
+        fontFamily: 'Averta',
         fontSize: dimensions?.fontSize,
         lineHeight: dimensions?.lineHeight,
         fontWeight: 200,

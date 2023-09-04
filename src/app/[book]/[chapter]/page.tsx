@@ -59,12 +59,12 @@ const Chapter = ({
   const buttonsBarClickHandler = () => openButtonsBar(!isButtonsBarOpen);
   const onExit = () => activeSoundClient(false);
 
-  // const modalClickHandler = () => {
-  //   activeSoundClient(true);
-  //   muteAudio(false);
-  //   setTimeout(() => toggleModalVisibility(false), 200);
-  //   openButtonsBar(true);
-  // };
+  const modalClickHandler = () => {
+    // activeSoundClient(true);
+    // muteAudio(false);
+    // setTimeout(() => toggleModalVisibility(false), 200);
+    // openButtonsBar(true);
+  };
 
   const muteAudioHandler = () => {
     if (!soundClientActive) {
@@ -117,22 +117,20 @@ const Chapter = ({
           onClick={onExit}
         />
       </div>
-      {/* <Modal
-            top={150}
-            width={93}
-            height={93 * (865 / 1086)}
-            backgroundSource="modal.webp"
-            isVisible={modalVisible}
-          >
-            <Suspense fallback={<></>}>
-              <Button
-                top={48}
-                width={60}
-                onClick={modalClickHandler}
-                text="activer le son"
-              />
-            </Suspense>
-          </Modal> */}
+      <Modal
+        top={40}
+        width={93}
+        height={93 * (738 / 1090)}
+        backgroundSource="modal.webp"
+        isVisible={true}
+      >
+        <Button
+          top={46}
+          width={60}
+          onClick={modalClickHandler}
+          text="Activer le son"
+        />
+      </Modal>
     </main>
   );
 };
