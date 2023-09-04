@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+
 type ChapterInfo = {
   title: string;
   number: number;
@@ -5,16 +7,24 @@ type ChapterInfo = {
   vignette: string;
 };
 
-const ChapterSquare = ({
-  chapter,
-}: {
-  chapter: ChapterInfo;
-}) => {
+const ChapterLarge = ({ chapter }: { chapter: ChapterInfo }) => {
+  const [squareDim, setSquareDim] = useState<number>(0);
+
+  useEffect(
+    () =>
+      setSquareDim(
+        document.querySelector('.chapter-square')?.getBoundingClientRect()
+          .width || 0
+      ),
+    []
+  );
+
   return (
     <div
-      className="chapter-square"
+      className="chapter-large"
       style={{
-        aspectRatio: 1,
+        width: '100%',
+        height: `${squareDim}px`,
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
         fontFamily: 'Averta',
         fontWeight: 'bold',
@@ -38,4 +48,4 @@ const ChapterSquare = ({
   );
 };
 
-export default ChapterSquare;
+export default ChapterLarge;
