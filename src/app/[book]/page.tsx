@@ -19,18 +19,14 @@ export default function Book({
 }) {
   const book = params.book;
   const [chapters, setChapters] = useState<ChapterInfo[]>([]);
-  const [largeChapter, setLargeChapter] = useState<ChapterInfo>();
+  const [buttonsBarShown, toggleButtonsBar] = useState<boolean>(true);
 
   // DATA IMPORT
   useEffect(() => {
     // SOUNDS
     import(`ballast/data/books/${book}/infos.json`)
       .then(({ default: infos }: { default: { chapters: ChapterInfo[] } }) => {
-        const chapters = infos.chapters.splice(0, infos.chapters.length);
-        if ((infos.chapters.length + 1) % 2 === 1) {
-          setLargeChapter(chapters.pop());
-        }
-        setChapters(chapters);
+        setChapters(infos.chapters);
       })
       .catch(() => {
         // router.push('/404');
@@ -46,9 +42,9 @@ export default function Book({
         book={book}
         audioMuted={false}
         muteAudioHandler={() => {}}
-        isOpen={true}
+        isOpen={buttonsBarShown}
         onExit={() => {}}
-        clickHandler={() => {}}
+        clickHandler={() => toggleButtonsBar(!buttonsBarShown)}
         hide={{sound: true, book: true}}
       />
       <Cover book={book} />

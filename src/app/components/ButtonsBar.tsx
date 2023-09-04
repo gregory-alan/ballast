@@ -41,17 +41,18 @@ const ButtonsBar = ({
   }>();
 
   useEffect(() => {
+    const length = 3 - Object.values(hide || {}).filter((val) => !!val).length;
     setDimensions(
       computeBoxModel({
         top,
         height: width,
         right,
         width,
-        containerWidth: width * 3.7,
+        containerWidth: width * (length + 0.7),
         containerRight: right + 5,
       })
     );
-  }, [top, right, width]);
+  }, [top, right, width, hide]);
 
   return (
     <>
