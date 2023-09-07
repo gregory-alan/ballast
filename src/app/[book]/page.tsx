@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Cover from 'ballast/app/components/Cover';
 import ChapterSquare from 'ballast/app/components/ChapterSquare';
-import ChapterLarge from 'ballast/app/components/ChapterLarge';
 import Splash from 'ballast/app/components/Splash';
 import { Sounds } from 'ballast/types/AudioService';
 import Link from 'next/link';
@@ -55,8 +54,8 @@ export default function Book({
           display: 'grid',
           width: '80%',
           marginLeft: '10%',
-          rowGap: '10px',
-          columnGap: '10px',
+          rowGap: '5px',
+          columnGap: '5px',
           gridTemplateColumns: '1fr 1fr 1fr 1fr',
           zIndex: 1002,
         }}
@@ -73,14 +72,7 @@ export default function Book({
           </Link>
         ))}
       </div>
-      {/* {largeChapter && (
-          <ChapterLarge
-            chapter={{
-              ...largeChapter,
-              vignette: `/images/${book}/${largeChapter.slug}/vignette.webp`,
-            }}
-          />
-        )} */}
+
     </main>
   );
 }

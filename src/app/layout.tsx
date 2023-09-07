@@ -1,7 +1,7 @@
 import './globals.css';
 import { Inter } from 'next/font/google';
-import Image from 'next/image';
 
+import Piwik from 'ballast/app/components/Piwik';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -19,9 +19,9 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${inter.className} w-full relative flex flex-col items-center justify-center`}
-        style={{height: 'auto'}}
+        style={{ height: 'auto' }}
       >
-        {children}
+        <Piwik>{children}</Piwik>
       </body>
     </html>
   );
