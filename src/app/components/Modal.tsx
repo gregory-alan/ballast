@@ -53,7 +53,7 @@ const Modal = ({
         backgroundSize: 'cover',
         backgroundRepeat: 'no-repeat',
         borderRadius: '2px',
-        zIndex: 100,
+        zIndex: 1500,
         opacity: isVisible ? 1 : 0,
       }}
     >

@@ -69,7 +69,7 @@ const ButtonsBar = ({
           borderRadius: 180,
           color: 'white',
           boxSizing: 'border-box',
-          zIndex: 201,
+          zIndex: 10001,
           overflow: 'visible',
           backgroundSize: 'cover',
           backgroundRepeat: 'no-repeat',
@@ -98,7 +98,7 @@ const ButtonsBar = ({
           borderBottomLeftRadius: 180,
           color: 'white',
           boxSizing: 'border-box',
-          zIndex: 200,
+          zIndex: 10000,
           border: '1px solid #eeeeeeee',
           borderRight: 'none',
           background:

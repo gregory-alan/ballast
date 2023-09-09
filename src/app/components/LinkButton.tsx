@@ -71,7 +71,7 @@ const LinkButton = ({
           fontWeight: 200,
           textTransform: 'uppercase',
           boxSizing: 'border-box',
-          zIndex: 100,
+          zIndex: 2000,
         }}
       >
         {text}

@@ -117,7 +117,10 @@ const Chapter = ({
           onClick={onExit}
         />
       </div>
-      <div className="absolute top-0 left-0 w-full h-full flex justify-center align-center" style={{zIndex: 4000}}>
+      <div
+        className="absolute top-0 left-0 w-full h-full flex justify-center align-center"
+        style={{ zIndex: 1500 }}
+      >
         <Modal
           top={40}
           width={93}
@@ -132,7 +135,7 @@ const Chapter = ({
             text="Activer le son"
           />
         </Modal>
-        </div>
+      </div>
     </main>
   );
 };

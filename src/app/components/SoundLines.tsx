@@ -99,7 +99,7 @@ const SoundLine = ({
         color: isVisible ? 'white' : 'transparent',
         writingMode: 'vertical-rl',
         textOrientation: 'mixed',
-        zIndex: 100,
+        zIndex: 5000,
         display: SHOW_SOUNDLINES ? 'block' : 'none',
       }}
     >
