@@ -117,20 +117,22 @@ const Chapter = ({
           onClick={onExit}
         />
       </div>
-      <Modal
-        top={40}
-        width={93}
-        height={93 * (738 / 1090)}
-        backgroundSource="modal.webp"
-        isVisible={true}
-      >
-        <Button
-          top={46}
-          width={60}
-          onClick={modalClickHandler}
-          text="Activer le son"
-        />
-      </Modal>
+      <div className="absolute top-0 left-0 w-full h-full flex justify-center align-center" style={{zIndex: 4000}}>
+        <Modal
+          top={40}
+          width={93}
+          height={93 * (752 / 1090)}
+          backgroundSource="modal.webp"
+          isVisible={true}
+        >
+          <Button
+            top={46}
+            width={60}
+            onClick={modalClickHandler}
+            text="Activer le son"
+          />
+        </Modal>
+        </div>
     </main>
   );
 };

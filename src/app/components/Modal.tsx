@@ -45,9 +45,8 @@ const Modal = ({
       className="modal"
       onClick={onClick}
       style={{
-        position: 'absolute',
+        position: 'relative',
         top: dimensions?.top,
-        left: dimensions?.left,
         width: dimensions?.width,
         height: dimensions?.height,
         backgroundImage: `url(/images/${backgroundSource})`,
