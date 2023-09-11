@@ -1,0 +1,167 @@
+[
+  {
+    "chapter": 1,
+    "sounds": [
+      {
+        "slug": "sound-1.5",
+        "type": "music",
+        "kind": "howl",
+        "color": "#c90d0d",
+        "loop": true,
+        "start": 0,
+        "end": 300,
+        "sessions": [[0, 300]]
+      },
+      {
+        "slug": "sound-1.1",
+        "type": "music",
+        "kind": "toneplayer",
+        "color": "#0dc90d",
+        "loop": false,
+        "start": 500,
+        "end": 1200,
+        "sessions": [[500, 900]]
+      },
+      {
+        "slug": "sound-1.2",
+        "type": "music",
+        "kind": "toneplayer",
+        "color": "#0d0dc9",
+        "loop": false,
+        "start": 500,
+        "end": 1200,
+        "sessions": [[700, 950]]
+      },
+      {
+        "slug": "sound-1.3",
+        "type": "music",
+        "kind": "toneplayer",
+        "color": "#c90dc9",
+        "loop": false,
+        "start": 500,
+        "end": 1200,
+        "sessions": [[600, 800]]
+      },
+      {
+        "slug": "sound-1.4",
+        "type": "music",
+        "kind": "toneplayer",
+        "color": "#c90dc9",
+        "loop": false,
+        "start": 500,
+        "end": 1200,
+        "sessions": [[600, 900]]
+      }
+    ]
+  },
+  {
+    "chapter": 2,
+    "sounds":  [
+      {
+        "slug": "sound-2.5",
+        "type": "music",
+        "kind": "howl",
+        "color": "#c90d0d",
+        "loop": true,
+        "start": 0,
+        "end": 300,
+        "sessions": [[0, 300]]
+      },
+      {
+        "slug": "sound-2.1",
+        "type": "music",
+        "kind": "toneplayer",
+        "color": "#0dc90d",
+        "loop": false,
+        "start": 500,
+        "end": 1200,
+        "sessions": [[500, 900]]
+      },
+      {
+        "slug": "sound-2.2",
+        "type": "music",
+        "kind": "toneplayer",
+        "color": "#0d0dc9",
+        "loop": false,
+        "start": 500,
+        "end": 1200,
+        "sessions": [[700, 950]]
+      },
+      {
+        "slug": "sound-2.3",
+        "type": "music",
+        "kind": "toneplayer",
+        "color": "#c90dc9",
+        "loop": false,
+        "start": 500,
+        "end": 1200,
+        "sessions": [[600, 800]]
+      },
+      {
+        "slug": "sound-2.4",
+        "type": "music",
+        "kind": "toneplayer",
+        "color": "#c90dc9",
+        "loop": false,
+        "start": 500,
+        "end": 1200,
+        "sessions": [[600, 900]]
+      }
+    ]
+  },
+  {
+    "chapter": 3,
+    "sounds":  [
+      {
+        "slug": "sound-3.5",
+        "type": "music",
+        "kind": "howl",
+        "color": "#c90d0d",
+        "loop": true,
+        "start": 0,
+        "end": 300,
+        "sessions": [[0, 300]]
+      },
+      {
+        "slug": "sound-3.1",
+        "type": "music",
+        "kind": "toneplayer",
+        "color": "#0dc90d",
+        "loop": false,
+        "start": 500,
+        "end": 1200,
+        "sessions": [[500, 900]]
+      },
+      {
+        "slug": "sound-3.2",
+        "type": "music",
+        "kind": "toneplayer",
+        "color": "#0d0dc9",
+        "loop": false,
+        "start": 500,
+        "end": 1200,
+        "sessions": [[700, 950]]
+      },
+      {
+        "slug": "sound-3.3",
+        "type": "music",
+        "kind": "toneplayer",
+        "color": "#c90dc9",
+        "loop": false,
+        "start": 500,
+        "end": 1200,
+        "sessions": [[600, 800]]
+      },
+      {
+        "slug": "sound-3.4",
+        "type": "music",
+        "kind": "toneplayer",
+        "color": "#c90dc9",
+        "loop": false,
+        "start": 500,
+        "end": 1200,
+        "sessions": [[600, 900]]
+      }
+    ]
+  }
+]

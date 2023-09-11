@@ -15,46 +15,49 @@ export default function ChapterLayout({
   params: { book: string; chapter: string };
 }) {
   const book = params.book;
-  const chapter = params.chapter;
+  const [chapterNumber, ...others] = params.chapter.split('-');
+  const chapterSlug = others.join('-');
   const [sounds, setSounds] = useState<Sounds>([]);
-  const [pristine, setPristine] = useState<boolean | undefined>();
 
-  const pristineChecker = () => {
-    const pristine = sessionStorage.getItem('pristine') === null ? true : false;
-    if (pristine) {
-      sessionStorage.setItem('pristine', 'no');
-    }
-    return pristine;
-  };
+  // PRISTINE (NOT USED RIGHT NOW)
+  // const [pristine, setPristine] = useState<boolean | undefined>();
 
-  useEffect(() => {
-    const pristine = pristineChecker();
-    setPristine(pristine);
-  }, []);
+  // const pristineChecker = () => {
+  //   const pristine = sessionStorage.getItem('pristine') === null ? true : false;
+  //   if (pristine) {
+  //     sessionStorage.setItem('pristine', 'no');
+  //   }
+  //   return pristine;
+  // };
+
+  // useEffect(() => {
+  //   const pristine = pristineChecker();
+  //   setPristine(pristine);
+  // }, []);
 
   // DATA IMPORT
   useEffect(() => {
     // SOUNDS
-    import(`ballast/data/books/${book}/${chapter}/sounds.json`)
+    import(`ballast/data/books/${book}/sounds.json`)
       .then(({ default: sounds }: { default: any }) => {
+        console.log(sounds);
         setSounds(sounds);
       })
       .catch(() => {
         // router.push('/404');
       });
-  }, [book, chapter]);
+  }, [book, chapterNumber]);
 
   return (
     <>
+      {/* <SoundClient
+        sounds={sounds}
+        muted={false}
+        showSoundLines={false}
+        activeSoundClient={() => console.log('ok')}
+      /> */}
       <Splash />
       {children}
     </>
   );
-
-  /* <SoundClient
-      sounds={sounds}
-      muted={false}
-      showSoundLines={true}
-      activeSoundClient={() => console.log('ok')}
-    /> */
 }

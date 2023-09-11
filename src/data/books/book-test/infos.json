@@ -1,0 +1,7 @@
+{
+  "chapters": [
+    { "number": 1, "title": "un titre 1 un peu long", "slug": "1-chapter1" },
+    { "number": 2, "title": "titre 2", "slug": "2-chapter2" },
+    { "number": 3, "title": "titre 3", "slug": "3-chapter3" }
+  ]
+}

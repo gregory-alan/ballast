@@ -1,3 +1,1 @@
-export type Images = {
-  source: string
-}[];
+export type Images = string[];
