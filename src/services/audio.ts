@@ -35,7 +35,7 @@ export const AudioService = (sounds: Sounds) => {
   ) => {
     Tone.start();
     setTimeout(() => {
-      console.log(Tone.context.state);
+      // console.log(Tone.context.state);
       if (Tone.context.state === 'running') {
         onAudioContextRunning();
       }

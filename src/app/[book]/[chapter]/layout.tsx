@@ -1,11 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import SoundClient from 'ballast/app/components/SoundClient';
+
+// import SoundClient from 'ballast/app/components/SoundClient';
 import Cover from 'ballast/app/components/Cover';
 import Splash from 'ballast/app/components/Splash';
 import { Sounds } from 'ballast/types/AudioService';
+import { ReaderContext } from 'ballast/contexts/ReaderContext';
 
 export default function ChapterLayout({
   children,
@@ -14,10 +17,17 @@ export default function ChapterLayout({
   children: React.ReactNode;
   params: { book: string; chapter: string };
 }) {
+  const router = useRouter();
   const book = params.book;
-  const [chapterNumber, ...others] = params.chapter.split('-');
-  const chapterSlug = others.join('-');
+  const chapter = parseInt(params.chapter, 10);
   const [sounds, setSounds] = useState<Sounds>([]);
+
+  if (isNaN(chapter)) {
+    router.push('/404');
+  }
+
+  console.log('__layout context', { book, chapter });
+
 
   // PRISTINE (NOT USED RIGHT NOW)
   // const [pristine, setPristine] = useState<boolean | undefined>();
@@ -46,18 +56,20 @@ export default function ChapterLayout({
       .catch(() => {
         // router.push('/404');
       });
-  }, [book, chapterNumber]);
+  }, [book]);
 
   return (
     <>
-      {/* <SoundClient
-        sounds={sounds}
-        muted={false}
-        showSoundLines={false}
-        activeSoundClient={() => console.log('ok')}
-      /> */}
       <Splash />
-      {children}
+      <ReaderContext.Provider value={{ chapter, book }}>
+        {/* <SoundClient
+          // sounds={sounds}
+          // muted={false}
+          // showSoundLines={false}
+          // activeSoundClient={() => console.log('ok')}
+        /> */}
+        {children}
+      </ReaderContext.Provider>
     </>
   );
 }

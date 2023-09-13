@@ -41,12 +41,13 @@ export default function Chapter({
         }: {
           default: { chapter: number; images: Images }[];
         }) => {
-          console.log(images, chapterNumber);
-          setImages(images.find((data) => data.chapter === chapterNumber)?.images || []);
+          const results = images.find((data) => data.chapter === chapterNumber)?.images || []
+          setImages(results);
         }
       )
       .catch(() => {
-        router.push('/404');
+        console.error('not found');
+        // router.push('/404');
       });
   }, [book, chapterNumber, router]);
 
@@ -84,7 +85,6 @@ export default function Chapter({
       {/* IMAGES */}
       <div className="flex-1 relative">
         {images.map((image) => (
-          <>
           <Image
             key={image}
             className="relative"
@@ -93,7 +93,7 @@ export default function Chapter({
             width={10000}
             height={1}
             priority
-          /><h1 key={image}>{image}</h1></>
+          />
         ))}
         {/* UI */}
         <ButtonsBar
