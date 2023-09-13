@@ -92,6 +92,13 @@ export default function SoundsClient({
       }
     });
 
+    EventService.current.listen<{ activate: boolean }>(
+      'activate-soundlines',
+      ({ activate }) => {
+        activateSoundLines(activate);
+      }
+    );
+
     return () => {
       AudioService.current?.stopAllAudioResources();
       AudioService.current?.removeAllAudioResources();
@@ -102,37 +109,36 @@ export default function SoundsClient({
   //   AudioService.current && AudioService.current.muteAllAudioResources(muted);
   // }, [Audio, muted]);
 
-  // return null;
   return (
-    // soundLinesActivated && (
-    <>
-      <SoundLines
-        sounds={sounds}
-        isVisible={true}
-        onEnter={(action: SoundAction, slug: string, kind: SoundKind) => {
-          // console.log(
-          //   `enter: ${
-          //     action === 'play' ? 'play' : 'unmute'
-          //   } the ${kind} ${slug}`
-          // );
-          if (action === 'play') {
-            AudioService.current?.playAudioResource(slug);
-          } else if (action === 'mute' && !muted) {
-            AudioService.current?.muteAudioResource(slug, false);
-          }
-        }}
-        onExit={(action: SoundAction, slug: string, kind: SoundKind) => {
-          // console.log(
-          //   `exit: ${action === 'play' ? 'stop' : 'mute'} the ${kind} ${slug}`
-          // );
-          if (action === 'play') {
-            AudioService.current?.stopAudioResource(slug);
-          } else if (action === 'mute' && !muted) {
-            AudioService.current?.muteAudioResource(slug, true);
-          }
-        }}
-      />
-    </>
-    // )
+    soundLinesActivated && (
+      <>
+        <SoundLines
+          sounds={sounds}
+          isVisible={true}
+          onEnter={(action: SoundAction, slug: string, kind: SoundKind) => {
+            console.log(
+              `enter: ${
+                action === 'play' ? 'play' : 'unmute'
+              } the ${kind} ${slug}`
+            );
+            if (action === 'play') {
+              AudioService.current?.playAudioResource(slug);
+            } else if (action === 'mute' && !muted) {
+              AudioService.current?.muteAudioResource(slug, false);
+            }
+          }}
+          onExit={(action: SoundAction, slug: string, kind: SoundKind) => {
+            console.log(
+              `exit: ${action === 'play' ? 'stop' : 'mute'} the ${kind} ${slug}`
+            );
+            if (action === 'play') {
+              AudioService.current?.stopAudioResource(slug);
+            } else if (action === 'mute' && !muted) {
+              AudioService.current?.muteAudioResource(slug, true);
+            }
+          }}
+        />
+      </>
+    )
   );
 }

@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 
 import Modal from 'ballast/app/components/Modal';
@@ -8,6 +8,9 @@ import LinkButton from 'ballast/app/components/LinkButton';
 import ButtonsBar from 'ballast/app/components/ButtonsBar';
 
 import { Images } from 'ballast/types/Image';
+
+import { EventServiceBuilder } from 'ballast/services/events';
+import { EventServiceInstance } from 'ballast/types/EventService';
 
 const HIDE_DURATION = 3000;
 
@@ -21,6 +24,7 @@ export default function Chapter({
 }) {
   const router = useRouter();
 
+  const EventService = useRef<EventServiceInstance | null>(null);
   const [visible, show] = useState<boolean>(false);
   const [audioMuted, muteAudio] = useState<boolean>(true);
   const [isButtonsBarOpen, openButtonsBar] = useState<boolean>(false);
@@ -41,7 +45,8 @@ export default function Chapter({
         }: {
           default: { chapter: number; images: Images }[];
         }) => {
-          const results = images.find((data) => data.chapter === chapterNumber)?.images || []
+          const results =
+            images.find((data) => data.chapter === chapterNumber)?.images || [];
           setImages(results);
         }
       )
@@ -58,6 +63,11 @@ export default function Chapter({
   const onExit = () => activeSoundClient(false);
 
   const modalClickHandler = () => {
+    EventService.current = EventServiceBuilder();
+    EventService.current.trigger('activate-soundlines', {
+      activate: soundClientActive,
+    });
+
     // activeSoundClient(true);
     // muteAudio(false);
     // setTimeout(() => toggleModalVisibility(false), 200);
