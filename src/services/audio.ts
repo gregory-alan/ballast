@@ -50,14 +50,14 @@ export const AudioServiceBuilder = () => {
     }
   };
 
-  const createHowlerAudioResource = (sound: Omit<AudioResource, 'object'>) => {
+  const createHowlerAudioResource = (sound: Omit<AudioResource, 'object'>, book: string) => {
     const { slug, loop, onCreated, onLoaded, onMuted } = sound;
     try {
       const howl = new Howl({
         src: [
-          `/sounds/${slug}.webm`,
-          // `/sounds/${slug}.aac`,
-          // `/sounds/${slug}.mp3`,
+          // `/sounds/${book}/${slug}.webm`,
+          // `/sounds/${book}/${slug}.aac`,
+          `/sounds/${book}/${slug}.mp3`,
         ], // 🧐 I DUNNO WHY BUT WEBM DOES NOT WORK ON MOBILE!!!!
         html5: true,
         mute: false,
@@ -81,9 +81,10 @@ export const AudioServiceBuilder = () => {
     }
   };
 
-  const createToneAudioResource = (sound: Omit<AudioResource, 'object'>) => {
+  const createToneAudioResource = (sound: Omit<AudioResource, 'object'>, book: string) => {
     const { slug, onCreated } = sound;
-    const player = new Tone.Player(`/sounds/${slug}.webm`).toDestination();
+    // const player = new Tone.Player(`/sounds/${book}/${slug}.webm`).toDestination();
+    const player = new Tone.Player(`/sounds/${book}/${slug}.mp3`).toDestination();
     player.fadeIn = 0.5;
     player.fadeOut = 0.5;
     player.volume.value = -60;
@@ -97,24 +98,25 @@ export const AudioServiceBuilder = () => {
   };
 
   const createAudioResource = (
-    sound: Omit<AudioResource, 'object'>
+    sound: Omit<AudioResource, 'object'>,
+    book: string
   ): AudioResource | undefined => {
     if (audioResourceExists(sound.slug)) {
       console.error('ALREADY EXISTING SOUND:', sound);
     }
     switch (sound.kind) {
       case 'howl':
-        return createHowlerAudioResource(sound);
+        return createHowlerAudioResource(sound, book);
       case 'toneplayer':
         // TODO: here do something for groups player... should go with Players I guess?
-        return createToneAudioResource(sound);
+        return createToneAudioResource(sound, book);
     }
   };
 
-  const createAudioResources = (sounds: Sounds) => {
+  const createAudioResources = (sounds: Sounds, book: string) => {
     console.log('creating Audio Resources', sounds);
     sounds.forEach((sound) =>
-      createAudioResource({ ...sound, onCreated: console.log })
+      createAudioResource({ ...sound, onCreated: console.log }, book)
     );
   };
 

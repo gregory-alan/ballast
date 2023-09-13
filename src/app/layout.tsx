@@ -25,7 +25,7 @@ export default function RootLayout({
         className={`${inter.className} w-full relative flex flex-col items-center justify-center`}
         style={{ height: 'auto' }}
       >
-        <SoundClient />
+        <SoundClient muted={false} />
         <Piwik>{children}</Piwik>
       </body>
     </html>

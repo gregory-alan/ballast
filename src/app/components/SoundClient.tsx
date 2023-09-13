@@ -3,6 +3,9 @@ import { AudioServiceBuilder } from 'ballast/services/audio';
 import {
   AudioServiceInstance,
   ChapterSounds,
+  SoundAction,
+  SoundKind,
+  Sounds,
 } from 'ballast/types/AudioService';
 
 import { EventServiceBuilder } from 'ballast/services/events';
@@ -10,16 +13,17 @@ import { EventServiceInstance } from 'ballast/types/EventService';
 
 import SoundLines from 'ballast/app/components/SoundLines';
 
-export default function SoundsClient({}: // sounds,
-// muted,
+export default function SoundsClient({
+  muted,
+}: // muted,
 // showSoundLines,
 // activeSoundClient,
 {
-  // sounds: any;
-  // muted: boolean;
+  muted: boolean;
   // showSoundLines: boolean;
   // activeSoundClient: (b: boolean) => void;
 }) {
+  const [sounds, setSounds] = useState<Sounds>([]);
   const AudioService = useRef<AudioServiceInstance | null>(null);
   const EventService = useRef<EventServiceInstance | null>(null);
   const [soundLinesActivated, activateSoundLines] = useState<boolean>(false);
@@ -59,76 +63,76 @@ export default function SoundsClient({}: // sounds,
         // 1) List the sound to create
         const toCreate = sounds
           .filter(
-            (row) =>
-              row.chapter === chapterNumber || row.chapter === chapterNumber + 1
+            (s) =>
+              s.chapter === chapterNumber || s.chapter === chapterNumber + 1
           )
-          .map((row) => row.sounds)
+          .map((s) => s.sounds)
           .reduce((all, sounds) => [...all, ...sounds], []);
 
         // 2) List the sound to free from memory
         const toDelete = sounds
           .filter(
-            (row) =>
-              row.chapter !== chapterNumber && row.chapter !== chapterNumber + 1
+            (s) =>
+              s.chapter !== chapterNumber && s.chapter !== chapterNumber + 1
           )
-          .map((row) => row.sounds)
+          .map((s) => s.sounds)
           .reduce((all, sounds) => [...all, ...sounds], []);
 
-        // console.log({toCreate, toDelete});
-
-        AudioService.current?.createAudioResources(toCreate);
+        AudioService.current?.createAudioResources(toCreate, book);
         AudioService.current?.removeAudioResources(toDelete);
         AudioService.current?.dumpAudioResources();
+
+        // 3) Set sounds for displaying in Soundlines
+        setSounds(
+          sounds
+            .filter((s) => s.chapter === chapterNumber)
+            .map((s) => s.sounds)
+            .reduce((all, sounds) => [...all, ...sounds], [])
+        );
       }
     });
+
+    return () => {
+      AudioService.current?.stopAllAudioResources();
+      AudioService.current?.removeAllAudioResources();
+    };
   }, []);
-
-  return null;
-  //     setTimeout(() => activateSoundLines(true), 500);
-  //   };
-  //   init();
-
-  //   // on unmount
-  //   return () => {
-  //     AudioService.current?.stopAllAudioResources();
-  //     AudioService.current?.removeAllAudioResources();
-  //   };
-  // }, [Audio, sounds, activateSoundLines, activeSoundClient]);
 
   // useEffect(() => {
   //   AudioService.current && AudioService.current.muteAllAudioResources(muted);
   // }, [Audio, muted]);
 
-  // return (
-  //   soundLinesActivated && (
-  //     <>
-  //       <SoundLines
-  //         sounds={sounds}
-  //         isVisible={showSoundLines}
-  //         onEnter={(action: SoundAction, slug: string, kind: SoundKind) => {
-  //           // console.log(
-  //           //   `enter: ${
-  //           //     action === 'play' ? 'play' : 'unmute'
-  //           //   } the ${kind} ${slug}`
-  //           // );
-  //           if (action === 'play') {
-  //             AudioService.current?.playAudioResource(slug);
-  //           } else if (action === 'mute' && !muted) {
-  //             AudioService.current?.muteAudioResource(slug, false);
-  //           }
-  //         }}
-  //         onExit={(action: SoundAction, slug: string, kind: SoundKind) => {
-  //           // console.log(
-  //           //   `exit: ${action === 'play' ? 'stop' : 'mute'} the ${kind} ${slug}`
-  //           // );
-  //           if (action === 'play') {
-  //             AudioService.current?.stopAudioResource(slug);
-  //           } else if (action === 'mute' && !muted) {
-  //             AudioService.current?.muteAudioResource(slug, true);
-  //           }
-  //         }}
-  //       />
-  //     </>
-  //   )
-  // );
+  // return null;
+  return (
+    // soundLinesActivated && (
+    <>
+      <SoundLines
+        sounds={sounds}
+        isVisible={true}
+        onEnter={(action: SoundAction, slug: string, kind: SoundKind) => {
+          // console.log(
+          //   `enter: ${
+          //     action === 'play' ? 'play' : 'unmute'
+          //   } the ${kind} ${slug}`
+          // );
+          if (action === 'play') {
+            AudioService.current?.playAudioResource(slug);
+          } else if (action === 'mute' && !muted) {
+            AudioService.current?.muteAudioResource(slug, false);
+          }
+        }}
+        onExit={(action: SoundAction, slug: string, kind: SoundKind) => {
+          // console.log(
+          //   `exit: ${action === 'play' ? 'stop' : 'mute'} the ${kind} ${slug}`
+          // );
+          if (action === 'play') {
+            AudioService.current?.stopAudioResource(slug);
+          } else if (action === 'mute' && !muted) {
+            AudioService.current?.muteAudioResource(slug, true);
+          }
+        }}
+      />
+    </>
+    // )
+  );
 }

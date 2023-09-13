@@ -36,12 +36,12 @@ export default function Reader({
 
   return (
     <>
-      {/* <Chapter
+      <Chapter
         book={book}
         chapterNumber={chapter}
         showSoundLines={showSoundLines}
-      /> */}
-      <Link href={`${chapter % 3 + 1}`}>
+      />
+      {/* <Link href={`${chapter % 3 + 1}`}>
         <button
           style={{
             position: 'absolute',
@@ -53,8 +53,8 @@ export default function Reader({
           }}
         >
           CHAPITRE SUIVANT
-        </button>
-      </Link>
+        </button> */}
+      {/* </Link> */}
     </>
   );
 }
