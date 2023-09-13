@@ -28,7 +28,6 @@ export default function ChapterLayout({
 
   console.log('__layout context', { book, chapter });
 
-
   // PRISTINE (NOT USED RIGHT NOW)
   // const [pristine, setPristine] = useState<boolean | undefined>();
 
@@ -44,19 +43,6 @@ export default function ChapterLayout({
   //   const pristine = pristineChecker();
   //   setPristine(pristine);
   // }, []);
-
-  // DATA IMPORT
-  useEffect(() => {
-    // SOUNDS
-    import(`ballast/data/books/${book}/sounds.json`)
-      .then(({ default: sounds }: { default: any }) => {
-        console.log(sounds);
-        setSounds(sounds);
-      })
-      .catch(() => {
-        // router.push('/404');
-      });
-  }, [book]);
 
   return (
     <>

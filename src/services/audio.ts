@@ -3,7 +3,7 @@ import { Howl } from 'howler';
 
 import { AudioResource, Sounds } from 'ballast/types/AudioService';
 
-export const AudioService = (sounds: Sounds) => {
+export const AudioServiceBuilder = () => {
   ///////////
   // GLOBALS
   ///////////
@@ -24,7 +24,12 @@ export const AudioService = (sounds: Sounds) => {
   const audioResourceExists = (slug: string) => AudioResources.has(slug);
   const removeAllAudioResources = () => AudioResources.clear();
   const dumpAudioResources = () =>
-    JSON.stringify(AudioResources.entries(), null, 2);
+    console.log(
+      Array.from(AudioResources.entries()).reduce((obj, row) => {
+        obj[row[0] as string] = row[1];
+        return obj;
+      }, {} as any)
+    );
 
   ////////////
   // METHODS
@@ -39,7 +44,7 @@ export const AudioService = (sounds: Sounds) => {
       if (Tone.context.state === 'running') {
         onAudioContextRunning();
       }
-    }, 1000)
+    }, 1000);
     if (Tone.context.state !== 'running') {
       onAudioContextSuspended();
     }
@@ -94,6 +99,9 @@ export const AudioService = (sounds: Sounds) => {
   const createAudioResource = (
     sound: Omit<AudioResource, 'object'>
   ): AudioResource | undefined => {
+    if (audioResourceExists(sound.slug)) {
+      console.error('ALREADY EXISTING SOUND:', sound);
+    }
     switch (sound.kind) {
       case 'howl':
         return createHowlerAudioResource(sound);
@@ -103,10 +111,11 @@ export const AudioService = (sounds: Sounds) => {
     }
   };
 
-  const createAudioResources = () => {
-    sounds.forEach((sound) => {
-      createAudioResource({ ...sound, onCreated: console.log });
-    });
+  const createAudioResources = (sounds: Sounds) => {
+    console.log('creating Audio Resources', sounds);
+    sounds.forEach((sound) =>
+      createAudioResource({ ...sound, onCreated: console.log })
+    );
   };
 
   const _mute = (muted: boolean, resource?: AudioResource) => {
@@ -211,7 +220,7 @@ export const AudioService = (sounds: Sounds) => {
     }
   };
 
-  const stopAudioResource = (slug: string) => {
+  const stopAudioResource = (slug: string, dispose: boolean = false) => {
     const resource = getAudioResource(slug);
     _stop(resource);
   };
@@ -219,6 +228,14 @@ export const AudioService = (sounds: Sounds) => {
   const stopAllAudioResources = (dispose: boolean = false) => {
     const resources = Array.from(getAllAudioResources());
     resources.forEach((resource) => _stop(resource, dispose));
+  };
+
+  const removeAudioResources = (sounds: Sounds) => {
+    console.log('removing Audio Resources', sounds);
+    sounds.forEach((sound) => {
+      stopAudioResource(sound.slug, true);
+      removeAudioResource(sound.slug);
+    });
   };
 
   return {
@@ -230,8 +247,9 @@ export const AudioService = (sounds: Sounds) => {
     stopAllAudioResources,
     muteAudioResource,
     muteAllAudioResources,
+    removeAudioResources,
     removeAllAudioResources,
-    // dumpSoundMap,
+    dumpAudioResources,
     // setMusicVolume,
     // setFXVolume,
     // setGlobalVolume,

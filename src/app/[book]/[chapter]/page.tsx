@@ -19,7 +19,7 @@ export default function Reader({
 }) {
   const router = useRouter();
   const EventService = useRef<EventServiceInstance | null>(null);
-  const { book, chapter } = useContext(ReaderContext);
+  let { book, chapter } = useContext(ReaderContext);
   console.log('__page context', { book, chapter });
 
   const searchParams = useSearchParams();
@@ -41,7 +41,7 @@ export default function Reader({
         chapterNumber={chapter}
         showSoundLines={showSoundLines}
       /> */}
-      <Link href={`${((chapter + 1) % 3) + 1}`}>
+      <Link href={`${chapter % 3 + 1}`}>
         <button
           style={{
             position: 'absolute',
@@ -52,7 +52,7 @@ export default function Reader({
             fontSize: '3em',
           }}
         >
-          CHAPITRE
+          CHAPITRE SUIVANT
         </button>
       </Link>
     </>

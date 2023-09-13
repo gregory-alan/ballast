@@ -1,6 +1,9 @@
 import { useContext, useEffect, useRef, useState } from 'react';
-import { AudioService } from 'ballast/services/audio';
-import { AudioServiceInstance } from 'ballast/types/AudioService';
+import { AudioServiceBuilder } from 'ballast/services/audio';
+import {
+  AudioServiceInstance,
+  ChapterSounds,
+} from 'ballast/types/AudioService';
 
 import { EventServiceBuilder } from 'ballast/services/events';
 import { EventServiceInstance } from 'ballast/types/EventService';
@@ -17,51 +20,83 @@ export default function SoundsClient({}: // sounds,
   // showSoundLines: boolean;
   // activeSoundClient: (b: boolean) => void;
 }) {
-  const Audio = useRef<AudioServiceInstance | null>(null);
+  const AudioService = useRef<AudioServiceInstance | null>(null);
   const EventService = useRef<EventServiceInstance | null>(null);
   const [soundLinesActivated, activateSoundLines] = useState<boolean>(false);
 
+  const dynamicSoundsImport = async (book: string) => {
+    try {
+      const data = (await import(`ballast/data/books/${book}/sounds.json`)) as {
+        default: ChapterSounds;
+      };
+      return data.default;
+    } catch (e) {
+      console.error(`FILE NOT FOUND: ballast/data/books/${book}/sounds.json`);
+      return null;
+    }
+  };
+
   // EVENTS
   useEffect(() => {
-    console.log('༄ SOUND CLIENT INITIALIZATION ༄');
-    EventService.current = EventServiceBuilder();
-    EventService.current.listen<{ book: string; chapter: number; showSoundLines: boolean }>(
-      'page-params',
-      (data) => console.log('🐳', data)
+    console.log('🔊 creating Audio Service and initializing Audio Context');
+    AudioService.current = AudioServiceBuilder();
+    AudioService.current.startAudioContext(
+      () => console.log('⏸️ suspended'),
+      () => console.log('▶️ running')
     );
+
+    EventService.current = EventServiceBuilder();
+    EventService.current.listen<{
+      book: string;
+      chapter: string; // 🤔 why events convert number to string?
+      showSoundLines: boolean;
+    }>('page-params', async ({ book, chapter, showSoundLines }) => {
+      const sounds = await dynamicSoundsImport(book);
+
+      if (sounds) {
+        const chapterNumber = parseInt(chapter, 10);
+
+        // 1) List the sound to create
+        const toCreate = sounds
+          .filter(
+            (row) =>
+              row.chapter === chapterNumber || row.chapter === chapterNumber + 1
+          )
+          .map((row) => row.sounds)
+          .reduce((all, sounds) => [...all, ...sounds], []);
+
+        // 2) List the sound to free from memory
+        const toDelete = sounds
+          .filter(
+            (row) =>
+              row.chapter !== chapterNumber && row.chapter !== chapterNumber + 1
+          )
+          .map((row) => row.sounds)
+          .reduce((all, sounds) => [...all, ...sounds], []);
+
+        // console.log({toCreate, toDelete});
+
+        AudioService.current?.createAudioResources(toCreate);
+        AudioService.current?.removeAudioResources(toDelete);
+        AudioService.current?.dumpAudioResources();
+      }
+    });
   }, []);
 
   return null;
-
-  // useEffect(() => {
-  //   const init = async () => {
-  //     console.log({ audio: Audio.current });
-  //     console.log('🔊 creating Audio Service and initializing Audio Context');
-  //     Audio.current = AudioService(sounds);
-  //     await Audio.current.startAudioContext(
-  //       () => {
-  //         console.log('⏸️ suspended');
-  //         activeSoundClient(false);
-  //       },
-  //       () => {
-  //         console.log('▶️ running');
-  //         activeSoundClient(true);
-  //       }
-  //     );
-  //     Audio.current.createAudioResources();
   //     setTimeout(() => activateSoundLines(true), 500);
   //   };
   //   init();
 
   //   // on unmount
   //   return () => {
-  //     Audio.current?.stopAllAudioResources();
-  //     Audio.current?.removeAllAudioResources();
+  //     AudioService.current?.stopAllAudioResources();
+  //     AudioService.current?.removeAllAudioResources();
   //   };
   // }, [Audio, sounds, activateSoundLines, activeSoundClient]);
 
   // useEffect(() => {
-  //   Audio.current && Audio.current.muteAllAudioResources(muted);
+  //   AudioService.current && AudioService.current.muteAllAudioResources(muted);
   // }, [Audio, muted]);
 
   // return (
@@ -77,9 +112,9 @@ export default function SoundsClient({}: // sounds,
   //           //   } the ${kind} ${slug}`
   //           // );
   //           if (action === 'play') {
-  //             Audio.current?.playAudioResource(slug);
+  //             AudioService.current?.playAudioResource(slug);
   //           } else if (action === 'mute' && !muted) {
-  //             Audio.current?.muteAudioResource(slug, false);
+  //             AudioService.current?.muteAudioResource(slug, false);
   //           }
   //         }}
   //         onExit={(action: SoundAction, slug: string, kind: SoundKind) => {
@@ -87,9 +122,9 @@ export default function SoundsClient({}: // sounds,
   //           //   `exit: ${action === 'play' ? 'stop' : 'mute'} the ${kind} ${slug}`
   //           // );
   //           if (action === 'play') {
-  //             Audio.current?.stopAudioResource(slug);
+  //             AudioService.current?.stopAudioResource(slug);
   //           } else if (action === 'mute' && !muted) {
-  //             Audio.current?.muteAudioResource(slug, true);
+  //             AudioService.current?.muteAudioResource(slug, true);
   //           }
   //         }}
   //       />

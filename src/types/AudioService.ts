@@ -1,11 +1,16 @@
 import * as Tone from 'tone';
 import { Howl } from 'howler';
 
-import { AudioService } from 'ballast/services/audio';
+import { AudioServiceBuilder } from 'ballast/services/audio';
 
 export type SoundKind = 'toneplayer' | 'howl';
 export type SoundType = 'fx' | 'music' | 'ambient';
 export type SoundAction = 'play' | 'mute';
+
+export type ChapterSounds = {
+  chapter: number;
+  sounds: Sound[];
+}[];
 
 export type Sound = {
   slug: string;
@@ -34,6 +39,6 @@ export type AudioResourceEventHandlers = {
   onMuted?: (...args: any) => void;
 };
 
-export type AudioServiceInstance = ReturnType<typeof AudioService>;
+export type AudioServiceInstance = ReturnType<typeof AudioServiceBuilder>;
 
 export type SoundClientStatus = { state: 'suspended' | 'running'; muted: boolean };
