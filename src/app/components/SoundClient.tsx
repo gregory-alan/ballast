@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AudioServiceBuilder } from 'ballast/services/audio';
 import {
   AudioServiceInstance,
@@ -13,16 +13,7 @@ import { EventServiceInstance } from 'ballast/types/EventService';
 
 import SoundLines from 'ballast/app/components/SoundLines';
 
-export default function SoundsClient({
-  muted,
-}: // muted,
-// showSoundLines,
-// activeSoundClient,
-{
-  muted: boolean;
-  // showSoundLines: boolean;
-  // activeSoundClient: (b: boolean) => void;
-}) {
+export default function SoundsClient({ muted }: { muted: boolean }) {
   const [sounds, setSounds] = useState<Sounds>([]);
   const AudioService = useRef<AudioServiceInstance | null>(null);
   const EventService = useRef<EventServiceInstance | null>(null);
@@ -44,10 +35,6 @@ export default function SoundsClient({
   useEffect(() => {
     console.log('🔊 creating Audio Service and initializing Audio Context');
     AudioService.current = AudioServiceBuilder();
-    AudioService.current.startAudioContext(
-      () => console.log('⏸️ suspended'),
-      () => console.log('▶️ running')
-    );
 
     EventService.current = EventServiceBuilder();
     EventService.current.listen<{
@@ -55,8 +42,20 @@ export default function SoundsClient({
       chapter: string; // 🤔 why events convert number to string?
       showSoundLines: boolean;
     }>('page-params', async ({ book, chapter, showSoundLines }) => {
-      const sounds = await dynamicSoundsImport(book);
+      // 1) Check if audio context is running
+      AudioService.current?.startAudioContext(
+        () => {
+          console.log('⏸️ suspended');
+          EventService.current?.trigger('audiocontext-status', { running: false })
+        },
+        () => {
+          console.log('▶️ running');
+          EventService.current?.trigger('audiocontext-status', { running: true })
+        }
+      );
 
+      // 2) Import sounds
+      const sounds = await dynamicSoundsImport(book);
       if (sounds) {
         const chapterNumber = parseInt(chapter, 10);
 
@@ -99,15 +98,18 @@ export default function SoundsClient({
       }
     );
 
+    EventService.current.listen<{ muted: boolean }>(
+      'mute-audio',
+      ({ muted }) => {
+        AudioService.current && AudioService.current.muteAllAudioResources(muted);
+      }
+    );
+
     return () => {
       AudioService.current?.stopAllAudioResources();
       AudioService.current?.removeAllAudioResources();
     };
   }, []);
-
-  // useEffect(() => {
-  //   AudioService.current && AudioService.current.muteAllAudioResources(muted);
-  // }, [Audio, muted]);
 
   return (
     soundLinesActivated && (

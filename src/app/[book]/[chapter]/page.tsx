@@ -17,10 +17,8 @@ export default function Reader({
 }: {
   params: { book: string; chapter: string };
 }) {
-  const router = useRouter();
   const EventService = useRef<EventServiceInstance | null>(null);
   let { book, chapter } = useContext(ReaderContext);
-  console.log('__page context', { book, chapter });
 
   const searchParams = useSearchParams();
   const showSoundLines = searchParams.get('soundlines') === 'true';
@@ -41,20 +39,6 @@ export default function Reader({
         chapterNumber={chapter}
         showSoundLines={showSoundLines}
       />
-      {/* <Link href={`${chapter % 3 + 1}`}>
-        <button
-          style={{
-            position: 'absolute',
-            zIndex: 100000,
-            bottom: 0,
-            left: 0,
-            backgroundColor: 'pink',
-            fontSize: '3em',
-          }}
-        >
-          CHAPITRE SUIVANT
-        </button> */}
-      {/* </Link> */}
     </>
   );
 }
