@@ -18,7 +18,7 @@ type SoundLineHandler = (
   kind: SoundKind
 ) => void;
 type SoundLine = Sound & {
-  action: SoundAction;
+  action: SoundAction[];
 };
 
 const SoundLine = ({
@@ -26,26 +26,28 @@ const SoundLine = ({
   end,
   col,
   soundSlug,
-  action,
+  actions,
   color,
   kind,
   onEnter,
   onExit,
+  onClick,
   isVisible,
 }: {
   start: number;
   end: number;
   col: number;
-  action: SoundAction;
+  actions: SoundAction[];
   soundSlug: string;
   color: string;
   kind: SoundKind;
   onEnter: SoundLineHandler;
   onExit: SoundLineHandler;
+  onClick: (slug: string) => void;
   isVisible: boolean;
 }) => {
   const pattern = GeoPattern.generate(soundSlug, {
-    color: action === 'play' && kind === 'toneplayer' ? '#eee' : color,
+    color: actions.includes('mute') ? color : '#eee',
   });
   const [preventFirstExitCall, setPreventFirstExitCall] =
     useState<boolean>(true);
@@ -72,10 +74,10 @@ const SoundLine = ({
 
   useEffect(() => {
     if (inView) {
-      onEnter(action, soundSlug, kind);
+      actions.forEach((action) => onEnter(action, soundSlug, kind));
     } else {
       if (!preventFirstExitCall) {
-        onExit(action, soundSlug, kind);
+        actions.forEach((action) => onExit(action, soundSlug, kind));
       }
       setPreventFirstExitCall(false);
     }
@@ -86,6 +88,7 @@ const SoundLine = ({
     <div
       ref={ref}
       className="soundline"
+      onClick={() => onClick(soundSlug)}
       style={{
         position: 'absolute',
         top: dimensions?.top,
@@ -96,14 +99,20 @@ const SoundLine = ({
         background: isVisible ? pattern.toDataUrl() : 'transparent',
         padding: '10px',
         boxSizing: 'border-box',
-        color: isVisible ? 'white' : 'transparent',
+        userSelect: 'none',
+        color: !isVisible
+          ? 'transparent'
+          : actions.includes('play') && kind === 'toneplayer'
+          ? 'black'
+          : 'white',
         writingMode: 'vertical-rl',
         textOrientation: 'mixed',
         zIndex: 5000,
         display: SHOW_SOUNDLINES ? 'block' : 'none',
       }}
     >
-      {start}-{end}&nbsp;&nbsp;&nbsp;{soundSlug}
+      <strong>{soundSlug}</strong> ({start} {`->`} {end},{' '}
+      {actions.map((value) => ({ play: '𝗣', mute: '𝗠' }[value]))})
     </div>
   );
 };
@@ -113,12 +122,14 @@ const SoundLinesColumn = ({
   n,
   onEnter,
   onExit,
+  onClick,
   isVisible,
 }: {
   soundLines: SoundLine[];
   n: number;
   onEnter: SoundLineHandler;
   onExit: SoundLineHandler;
+  onClick: (slug: string) => void;
   isVisible: boolean;
 }) => {
   return (
@@ -129,12 +140,13 @@ const SoundLinesColumn = ({
           start={start}
           end={end}
           col={n}
-          action={action}
+          actions={action}
           kind={kind}
           soundSlug={slug}
           color={color}
           onEnter={onEnter}
           onExit={onExit}
+          onClick={onClick}
           isVisible={isVisible}
         />
       ))}
@@ -146,11 +158,13 @@ export default function SoundLines({
   sounds,
   onEnter,
   onExit,
+  onClick,
   isVisible,
 }: {
   sounds: Sounds;
   onEnter: SoundLineHandler;
   onExit: SoundLineHandler;
+  onClick: (slug: string) => void;
   isVisible: boolean;
 }) {
   const createSoundLines = (sounds: Sounds): SoundLine[][] => {
@@ -166,7 +180,7 @@ export default function SoundLines({
         if (!column.find(({ end }) => start < end)) {
           column.push({
             ...sound,
-            action: 'play',
+            action: sound.kind === 'howl' ? ['play', 'mute'] : ['play'],
           });
           sound.sessions.forEach((session) => {
             if (session[0] < start || session[1] > end) {
@@ -177,7 +191,7 @@ export default function SoundLines({
             if (sound.kind === 'toneplayer') {
               column.push({
                 ...{ ...sound, start: session[0], end: session[1] },
-                action: 'mute',
+                action: ['mute'],
               });
             }
           });
@@ -185,7 +199,7 @@ export default function SoundLines({
         }
       }
     });
-    // console.log('🖍️', soundLines);
+
     return soundLines;
   };
 
@@ -198,6 +212,7 @@ export default function SoundLines({
           n={n}
           onEnter={onEnter}
           onExit={onExit}
+          onClick={onClick}
           isVisible={isVisible}
         />
       ))}

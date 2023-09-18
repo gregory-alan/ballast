@@ -66,8 +66,8 @@ export default function Chapter({
     EventService.current.trigger('mute-audio', {
       muted: audioMuted,
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [audioMuted])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [audioMuted]);
 
   // Import the images
   useEffect(() => {

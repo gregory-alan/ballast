@@ -40,7 +40,6 @@ export const AudioServiceBuilder = () => {
   ) => {
     Tone.start();
     setTimeout(() => {
-      // console.log(Tone.context.state);
       if (Tone.context.state === 'running') {
         onAudioContextRunning();
       }
@@ -50,7 +49,10 @@ export const AudioServiceBuilder = () => {
     }
   };
 
-  const createHowlerAudioResource = (sound: Omit<AudioResource, 'object'>, book: string) => {
+  const createHowlerAudioResource = (
+    sound: Omit<AudioResource, 'object'>,
+    book: string
+  ) => {
     const { slug, loop, onCreated, onLoaded, onMuted } = sound;
     try {
       const howl = new Howl({
@@ -64,7 +66,7 @@ export const AudioServiceBuilder = () => {
         loop: loop,
         onmute: () => onMuted && onMuted(getAudioResource(slug)),
         onload: () => onLoaded?.(sound),
-        onplay: () => console.log('playing', slug),
+        onplay: () => () => {},
         onplayerror: (e) => console.error(e, slug),
       });
 
@@ -81,10 +83,15 @@ export const AudioServiceBuilder = () => {
     }
   };
 
-  const createToneAudioResource = (sound: Omit<AudioResource, 'object'>, book: string) => {
+  const createToneAudioResource = (
+    sound: Omit<AudioResource, 'object'>,
+    book: string
+  ) => {
     const { slug, onCreated } = sound;
     // const player = new Tone.Player(`/sounds/${book}/${slug}.webm`).toDestination();
-    const player = new Tone.Player(`/sounds/${book}/${slug}.mp3`).toDestination();
+    const player = new Tone.Player(
+      `/sounds/${book}/${slug}.mp3`
+    ).toDestination();
     player.fadeIn = 0.5;
     player.fadeOut = 0.5;
     player.volume.value = -60;
@@ -102,7 +109,7 @@ export const AudioServiceBuilder = () => {
     book: string
   ): AudioResource | undefined => {
     if (audioResourceExists(sound.slug)) {
-      console.error('ALREADY EXISTING SOUND:', sound);
+      return;
     }
     switch (sound.kind) {
       case 'howl':
@@ -114,9 +121,8 @@ export const AudioServiceBuilder = () => {
   };
 
   const createAudioResources = (sounds: Sounds, book: string) => {
-    console.log('creating Audio Resources', sounds);
     sounds.forEach((sound) =>
-      createAudioResource({ ...sound, onCreated: console.log }, book)
+      createAudioResource({ ...sound, onCreated: () => {} }, book)
     );
   };
 
@@ -126,6 +132,7 @@ export const AudioServiceBuilder = () => {
         case 'howl':
           const howl = resource.object as Howl;
           howl.mute(muted);
+          howl.volume(muted ? 0 : 1);
           break;
         case 'toneplayer':
           const player = resource.object as Tone.Player;
@@ -134,13 +141,14 @@ export const AudioServiceBuilder = () => {
           }
           if (!muted) {
             player.volume.setValueCurveAtTime(
-              [-60, -6],
+              [-Infinity, -6],
               Tone.now(),
               TONE_FADE_IN
             );
+            // setTimeout(() => player.volume.mute = true, 200)
           } else {
             player.volume.setValueCurveAtTime(
-              [-6, -60],
+              [-6, -Infinity],
               Tone.now(),
               TONE_FADE_OUT
             );
@@ -233,11 +241,15 @@ export const AudioServiceBuilder = () => {
   };
 
   const removeAudioResources = (sounds: Sounds) => {
-    console.log('removing Audio Resources', sounds);
     sounds.forEach((sound) => {
       stopAudioResource(sound.slug, true);
       removeAudioResource(sound.slug);
     });
+  };
+
+  const debugAudioResource = (slug: string) => {
+    const resource = getAudioResource(slug);
+    console.log('🔈', resource);
   };
 
   return {
@@ -252,6 +264,7 @@ export const AudioServiceBuilder = () => {
     removeAudioResources,
     removeAllAudioResources,
     dumpAudioResources,
+    debugAudioResource,
     // setMusicVolume,
     // setFXVolume,
     // setGlobalVolume,

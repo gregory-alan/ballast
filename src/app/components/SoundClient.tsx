@@ -13,11 +13,12 @@ import { EventServiceInstance } from 'ballast/types/EventService';
 
 import SoundLines from 'ballast/app/components/SoundLines';
 
-export default function SoundsClient({ muted }: { muted: boolean }) {
+export default function SoundsClient() {
   const [sounds, setSounds] = useState<Sounds>([]);
   const AudioService = useRef<AudioServiceInstance | null>(null);
   const EventService = useRef<EventServiceInstance | null>(null);
   const [soundLinesActivated, activateSoundLines] = useState<boolean>(false);
+  const [isAudioMuted, muteAudio] = useState<boolean>(false);
 
   const dynamicSoundsImport = async (book: string) => {
     try {
@@ -33,7 +34,6 @@ export default function SoundsClient({ muted }: { muted: boolean }) {
 
   // EVENTS
   useEffect(() => {
-    console.log('🔊 creating Audio Service and initializing Audio Context');
     AudioService.current = AudioServiceBuilder();
 
     EventService.current = EventServiceBuilder();
@@ -45,12 +45,14 @@ export default function SoundsClient({ muted }: { muted: boolean }) {
       // 1) Check if audio context is running
       AudioService.current?.startAudioContext(
         () => {
-          console.log('⏸️ suspended');
-          EventService.current?.trigger('audiocontext-status', { running: false })
+          EventService.current?.trigger('audiocontext-status', {
+            running: false,
+          });
         },
         () => {
-          console.log('▶️ running');
-          EventService.current?.trigger('audiocontext-status', { running: true })
+          EventService.current?.trigger('audiocontext-status', {
+            running: true,
+          });
         }
       );
 
@@ -79,7 +81,6 @@ export default function SoundsClient({ muted }: { muted: boolean }) {
 
         AudioService.current?.createAudioResources(toCreate, book);
         AudioService.current?.removeAudioResources(toDelete);
-        AudioService.current?.dumpAudioResources();
 
         // 3) Set sounds for displaying in Soundlines
         setSounds(
@@ -93,15 +94,15 @@ export default function SoundsClient({ muted }: { muted: boolean }) {
 
     EventService.current.listen<{ activate: boolean }>(
       'activate-soundlines',
-      ({ activate }) => {
-        activateSoundLines(activate);
-      }
+      ({ activate }) => activateSoundLines(activate)
     );
 
     EventService.current.listen<{ muted: boolean }>(
       'mute-audio',
       ({ muted }) => {
-        AudioService.current && AudioService.current.muteAllAudioResources(muted);
+        AudioService.current &&
+          AudioService.current.muteAllAudioResources(muted);
+        muteAudio(muted);
       }
     );
 
@@ -117,25 +118,39 @@ export default function SoundsClient({ muted }: { muted: boolean }) {
         <SoundLines
           sounds={sounds}
           isVisible={true}
+          onClick={(slug) => AudioService.current?.debugAudioResource(slug)}
           onEnter={(action: SoundAction, slug: string, kind: SoundKind) => {
             console.log(
-              `enter: ${
-                action === 'play' ? 'play' : 'unmute'
-              } the ${kind} ${slug}`
+              `🌕 %center %c${slug} %c(${kind}) %c→ %c${
+                action === 'play' ? 'PLAY ⏯️' : 'UNMUTE 🔔'
+              }`,
+              'color: cyan; font-weight: bold',
+              'color: white',
+              'color: white; font-style: italic',
+              'color: white',
+              'color: white; font-weight: bold',
             );
             if (action === 'play') {
               AudioService.current?.playAudioResource(slug);
-            } else if (action === 'mute' && !muted) {
+            } else if (action === 'mute' && !isAudioMuted) {
               AudioService.current?.muteAudioResource(slug, false);
             }
           }}
           onExit={(action: SoundAction, slug: string, kind: SoundKind) => {
             console.log(
-              `exit: ${action === 'play' ? 'stop' : 'mute'} the ${kind} ${slug}`
+              `🌑 %cexit %c${slug} %c(${kind}) %c→ %c${
+                action === 'play' ? 'STOP ⏹️' : 'MUTE 🔕'
+              }`,
+              'color: steelblue',
+              'color: white',
+              'color: white; font-style: italic',
+              'color: white',
+              'color: white; font-weight: bold',
             );
+
             if (action === 'play') {
               AudioService.current?.stopAudioResource(slug);
-            } else if (action === 'mute' && !muted) {
+            } else if (action === 'mute' && !isAudioMuted) {
               AudioService.current?.muteAudioResource(slug, true);
             }
           }}
