@@ -12,6 +12,8 @@ export const AudioServiceBuilder = () => {
   const TONE_FADE_IN = 0.2;
   const TONE_FADE_OUT = 0.2;
 
+  let globalMute = false;
+
   ///////////////////
   // AUDIO RESOURCES
   ///////////////////
@@ -40,12 +42,15 @@ export const AudioServiceBuilder = () => {
       switch (resource.kind) {
         case 'howl':
           const howl = resource.object as Howl;
-          console.log('I SHOULD PLAY A HOWL')
           howl.play();
-          howl.mute(false);
-          howl.mute(false); // WTF, but twice is working, once not
-          howl.fade(0, 1, HOWL_FADE_IN);
-          console.log('💿', howl);
+          if (!globalMute) {
+            howl.mute(false);
+            howl.mute(false); // WTF, but twice is working, once not
+            howl.fade(0, 1, HOWL_FADE_IN);
+          }
+          if (resource.loop) {
+            howl.loop(true);
+          }
           break;
         case 'toneplayer':
           const player = resource.object as Tone.Player;
@@ -137,8 +142,8 @@ export const AudioServiceBuilder = () => {
 
   /**
    * This method checks tries to start the Audio Context and triggers one of the two callback accordingly
-   * @param onAudioContextSuspended 
-   * @param onAudioContextRunning 
+   * @param onAudioContextSuspended
+   * @param onAudioContextRunning
    */
   const startAudioContext = (
     onAudioContextSuspended: () => void,
@@ -158,15 +163,16 @@ export const AudioServiceBuilder = () => {
   /**
    * This method creates an AudioResource with a Howler's howl object.
    * Howl is muted and volume 0 by default.
-   * @param sound 
-   * @param book 
+   * Loop is set to true at first play back. On end, it is set to false if global mute is on
+   * @param sound
+   * @param book
    * @returns AudioResource (kind = howl) | undefined
    */
   const createHowlerAudioResource = (
     sound: Omit<AudioResource, 'object'>,
     book: string
   ) => {
-    const { slug, loop, onCreated, onLoaded, onMuted } = sound;
+    const { slug, onCreated, onLoaded, onMuted } = sound;
     try {
       const howl = new Howl({
         src: [
@@ -176,13 +182,12 @@ export const AudioServiceBuilder = () => {
         ], // 🧐 I DUNNO WHY BUT WEBM DOES NOT WORK ON MOBILE!!!!
         html5: true,
         mute: true,
-        loop: loop,
         onmute: () => onMuted && onMuted(getAudioResource(slug)),
         onload: () => onLoaded?.(sound),
-        onplay: (soundId) => console.log('play', slug, soundId),
-        onpause: (soundId) => console.log('pause', slug, soundId),
-        onstop: (soundId) => console.log('stop', slug, soundId),
-        onplayerror: (e) => console.error(e, slug),
+        // onplay: (soundId) => console.log('play', slug, soundId),
+        // onpause: (soundId) => console.log('pause', slug, soundId),
+        // onstop: (soundId) => console.log('stop', slug, soundId),
+        // onplayerror: (e) => console.error(e, slug),
       });
       howl.volume(0);
 
@@ -202,8 +207,8 @@ export const AudioServiceBuilder = () => {
   /**
    * This method creates an AudioResource with a Tone.js Player object.
    * The player is muted by default (volume = -Infinity).
-   * @param sound 
-   * @param book 
+   * @param sound
+   * @param book
    * @returns AudioResource (kind = toneplayer) | undefined
    */
   const createToneAudioResource = (
@@ -230,7 +235,7 @@ export const AudioServiceBuilder = () => {
   /**
    * This methode creates an AudioResource with a Tone.js Player or a Howler's howl.
    * @param sound
-   * @param book 
+   * @param book
    * @returns AudioResource
    */
   const createAudioResource = (
@@ -254,7 +259,7 @@ export const AudioServiceBuilder = () => {
    * Tone Players loading is delayed because we want to load the Howl first
    * TODO: load the sounds based on priority value
    * @param sound
-   * @param book 
+   * @param book
    * @returns AudioResource
    */
   const createAudioResources = (sounds: Sounds, book: string) => {
@@ -277,11 +282,12 @@ export const AudioServiceBuilder = () => {
    * This method mutes all the AudioResources in memory.
    * Tone.js Player volume is set to [-Infinity, 60].
    * Howler's howl is muted and volume set to [0, -6].
-   * @param muted 
+   * @param muted
    */
   const muteAllAudioResources = (muted: boolean) => {
     const resources = Array.from(getAllAudioResources());
     resources.forEach((resource) => _mute(muted, resource));
+    globalMute = muted;
   };
 
   /**
@@ -289,7 +295,7 @@ export const AudioServiceBuilder = () => {
    * Tone.js Player volume is set to [-Infinity, 60].
    * Howler's howl is muted and volume set to [0, -6].
    * @param slug
-   * @param muted 
+   * @param muted
    */
   const muteAudioResource = (slug: string, muted: boolean) => {
     const resource = getAudioResource(slug);
@@ -326,7 +332,7 @@ export const AudioServiceBuilder = () => {
 
   /**
    * This method stops the given AudioResources and clean them from memory
-   * @param sounds 
+   * @param sounds
    */
   const removeAudioResources = (sounds: Sounds) => {
     sounds.forEach((sound) => {
