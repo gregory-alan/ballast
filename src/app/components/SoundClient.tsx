@@ -128,7 +128,7 @@ export default function SoundsClient() {
               'color: white',
               'color: white; font-style: italic',
               'color: white',
-              'color: white; font-weight: bold',
+              'color: white; font-weight: bold'
             );
             if (action === 'play') {
               AudioService.current?.playAudioResource(slug);
@@ -145,7 +145,7 @@ export default function SoundsClient() {
               'color: white',
               'color: white; font-style: italic',
               'color: white',
-              'color: white; font-weight: bold',
+              'color: white; font-weight: bold'
             );
 
             if (action === 'play') {

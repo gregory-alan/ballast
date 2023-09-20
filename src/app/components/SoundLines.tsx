@@ -47,9 +47,11 @@ const SoundLine = ({
   isVisible: boolean;
 }) => {
   const pattern = GeoPattern.generate(soundSlug, {
-    color: actions.includes('mute') ? color : '#eee',
+    color: actions.includes('mute') || kind === 'howl' ? color : '#eee',
   });
   const [preventFirstExitCall, setPreventFirstExitCall] =
+    useState<boolean>(true);
+  const [preventFirstEnterCall, setPreventFirstEnterCall] =
     useState<boolean>(true);
   const [dimensions, setDimensions] = useState<{
     top: string;
@@ -74,7 +76,10 @@ const SoundLine = ({
 
   useEffect(() => {
     if (inView) {
+      // if (!preventFirstEnterCall || kind === 'howl') {
       actions.forEach((action) => onEnter(action, soundSlug, kind));
+      // }
+      setPreventFirstEnterCall(false);
     } else {
       if (!preventFirstExitCall) {
         actions.forEach((action) => onExit(action, soundSlug, kind));
@@ -112,7 +117,9 @@ const SoundLine = ({
       }}
     >
       <strong>{soundSlug}</strong> ({start} {`->`} {end},{' '}
+      {kind === 'howl' ? '𝗛' : '𝗧'}
       {actions.map((value) => ({ play: '𝗣', mute: '𝗠' }[value]))})
+      
     </div>
   );
 };
@@ -180,7 +187,7 @@ export default function SoundLines({
         if (!column.find(({ end }) => start < end)) {
           column.push({
             ...sound,
-            action: sound.kind === 'howl' ? ['play', 'mute'] : ['play'],
+            action: ['play'],
           });
           sound.sessions.forEach((session) => {
             if (session[0] < start || session[1] > end) {
