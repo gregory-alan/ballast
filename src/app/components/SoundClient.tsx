@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { AudioServiceBuilder } from 'ballast/services/audio';
 import {
   AudioServiceInstance,
+  AudioResourceViewStatus,
   ChapterSounds,
   SoundAction,
   SoundKind,
@@ -130,9 +131,27 @@ export default function SoundsClient() {
               'color: white',
               'color: white; font-weight: bold'
             );
+
             if (action === 'play') {
+              if (kind === 'toneplayer') {
+                AudioService.current?.setAudioResourceViewStatus(
+                  slug,
+                  AudioResourceViewStatus.PARTIALLY_IN_VIEW
+                );
+              } else {
+                AudioService.current?.setAudioResourceViewStatus(
+                  slug,
+                  AudioResourceViewStatus.IN_VIEW
+                );
+              }
               AudioService.current?.playAudioResource(slug);
             } else if (action === 'mute' && !isAudioMuted) {
+              if (kind === 'toneplayer') {
+                AudioService.current?.setAudioResourceViewStatus(
+                  slug,
+                  AudioResourceViewStatus.IN_VIEW
+                );
+              }
               AudioService.current?.muteAudioResource(slug, false);
             }
           }}
@@ -149,8 +168,18 @@ export default function SoundsClient() {
             );
 
             if (action === 'play') {
+              AudioService.current?.setAudioResourceViewStatus(
+                slug,
+                AudioResourceViewStatus.OUT_OF_VIEW
+              );
               AudioService.current?.stopAudioResource(slug);
             } else if (action === 'mute' && !isAudioMuted) {
+              if (kind === 'toneplayer') {
+                AudioService.current?.setAudioResourceViewStatus(
+                  slug,
+                  AudioResourceViewStatus.PARTIALLY_IN_VIEW
+                );
+              }
               AudioService.current?.muteAudioResource(slug, true);
             }
           }}

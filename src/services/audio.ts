@@ -1,7 +1,11 @@
 import * as Tone from 'tone';
 import { Howl } from 'howler';
 
-import { AudioResource, Sounds } from 'ballast/types/AudioService';
+import {
+  AudioResource,
+  Sounds,
+  AudioResourceViewStatus,
+} from 'ballast/types/AudioService';
 
 export const AudioServiceBuilder = () => {
   ///////////
@@ -22,6 +26,7 @@ export const AudioServiceBuilder = () => {
   const getAllAudioResources = () => AudioResources.values();
   const addAudioResource = (slug: string, resource: AudioResource) =>
     AudioResources.set(slug, resource);
+  const updateAudioResource = addAudioResource;
   const removeAudioResource = (slug: string) => AudioResources.delete(slug);
   const audioResourceExists = (slug: string) => AudioResources.has(slug);
   const removeAllAudioResources = () => AudioResources.clear();
@@ -123,13 +128,12 @@ export const AudioServiceBuilder = () => {
             console.error(`Can't (un)mute ${resource.slug}: not loaded`);
             return;
           }
-          if (!muted) {
+          if (!muted && resource.inView === AudioResourceViewStatus.IN_VIEW) {
             player.volume.setValueCurveAtTime(
               [-Infinity, -6],
               Tone.now(),
               TONE_FADE_IN
             );
-            // setTimeout(() => player.volume.mute = true, 200)
           } else {
             player.volume.setValueCurveAtTime(
               [-6, -Infinity],
@@ -270,13 +274,27 @@ export const AudioServiceBuilder = () => {
     const toneplayers = sounds.filter((sound) => sound.kind === 'toneplayer');
 
     howls.forEach((sound) =>
-      createAudioResource({ ...sound, onCreated: () => {} }, book)
+      createAudioResource(
+        {
+          ...sound,
+          inView: AudioResourceViewStatus.OUT_OF_VIEW,
+          onCreated: () => {},
+        },
+        book
+      )
     );
 
     // We delay the loading of toneplayers because we always start with a howl that should be loaded first
     setTimeout(() => {
       toneplayers.forEach((sound) =>
-        createAudioResource({ ...sound, onCreated: () => {} }, book)
+        createAudioResource(
+          {
+            ...sound,
+            inView: AudioResourceViewStatus.OUT_OF_VIEW,
+            onCreated: () => {},
+          },
+          book
+        )
       );
     }, 1000);
   };
@@ -345,6 +363,21 @@ export const AudioServiceBuilder = () => {
   };
 
   /**
+   *  This method updates an AudioResource view status
+   * @param slug
+   * @param status
+   */
+  const setAudioResourceViewStatus = (
+    slug: string,
+    status: AudioResourceViewStatus
+  ) => {
+    const resource = getAudioResource(slug);
+    if (resource) {
+      updateAudioResource(slug, { ...resource, inView: status });
+    }
+  };
+
+  /**
    * When clicking on a <SoundLine />, log the current AudioResource
    * @param slug
    */
@@ -364,6 +397,7 @@ export const AudioServiceBuilder = () => {
     muteAllAudioResources,
     removeAudioResources,
     removeAllAudioResources,
+    setAudioResourceViewStatus,
     dumpAudioResources,
     debugAudioResource,
     // setMusicVolume,

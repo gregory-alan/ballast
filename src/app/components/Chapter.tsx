@@ -34,7 +34,6 @@ export default function Chapter({
   // Check for Audio muted stored status
   useEffect(() => {
     const muted = sessionStorage.getItem('muted') === 'yes' ? true : false;
-    console.log('mute session state:', muted);
     muteAudio(muted);
   }, []);
 

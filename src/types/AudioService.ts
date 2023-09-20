@@ -25,9 +25,16 @@ export type Sound = {
 
 export type Sounds = Sound[];
 
+export enum AudioResourceViewStatus {
+  OUT_OF_VIEW,
+  PARTIALLY_IN_VIEW,
+  IN_VIEW,
+};
+
 export type AudioResource = Sound &
   AudioResourceEventHandlers & {
     object: Howl | Tone.Player;
+    inView: AudioResourceViewStatus;
   };
 
 export type AudioResourceEventHandlers = {
