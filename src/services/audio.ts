@@ -55,6 +55,7 @@ export const AudioServiceBuilder = () => {
         case 'toneplayer':
           const player = resource.object as Tone.Player;
           if (player.loaded) {
+            player.volume.value = -Infinity;
             player.start();
           } else {
             console.error(`Can't play ${resource.slug}: not loaded`);
@@ -86,7 +87,9 @@ export const AudioServiceBuilder = () => {
       switch (resource.kind) {
         case 'howl':
           const howl = resource.object as Howl;
-          howl.fade(1, 0, HOWL_FADE_OUT);
+          if (!globalMute) {
+            howl.fade(1, 0, HOWL_FADE_OUT);
+          }
           setTimeout(() => {
             howl.pause();
             howl.mute(true);
