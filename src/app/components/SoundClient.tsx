@@ -11,13 +11,13 @@ import { EventServiceBuilder } from 'ballast/services/events';
 import { EventServiceInstance } from 'ballast/types/EventService';
 
 import SoundLines from 'ballast/app/components/SoundLines';
+import { isMobile } from 'ballast/utils/isMobile';
 
 export default function SoundsClient() {
   const [sounds, setSounds] = useState<Sounds>([]);
   const AudioService = useRef<AudioServiceInstance | null>(null);
   const EventService = useRef<EventServiceInstance | null>(null);
   const [soundLinesActivated, activateSoundLines] = useState<boolean>(false);
-  const [isAudioMuted, muteAudio] = useState<boolean>(false);
 
   const dynamicSoundsImport = async (book: string) => {
     try {
@@ -99,6 +99,13 @@ export default function SoundsClient() {
     EventService.current.listen<{ muted: boolean }>('mute-audio', ({ muted }) =>
       AudioService.current?.globalMuteResources(muted)
     );
+
+    // TODO: better out of focus handling, but so far, we simply reload the page which will do the trick
+    // check https://github.com/serkanyersen/ifvisible.js/
+    // window.onfocus = () => alert('focus');
+    if (isMobile()) {
+      window.onblur = () => window.location.reload();
+    }
 
     return () => {
       AudioService.current?.stopAllAudioResources();

@@ -9,8 +9,8 @@ export const AudioServiceBuilder = () => {
   ///////////
   const HOWL_FADE_IN = 200;
   const HOWL_FADE_OUT = 200;
-  const TONE_FADE_IN = 0.2;
-  const TONE_FADE_OUT = 0.2;
+  const TONE_FADE_IN = 0.3;
+  const TONE_FADE_OUT = 0.3;
 
   let globalMute = false;
 
