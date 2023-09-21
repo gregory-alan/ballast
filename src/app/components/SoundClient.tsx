@@ -114,7 +114,7 @@ export default function SoundsClient() {
     // check https://github.com/serkanyersen/ifvisible.js/
     // window.onfocus = () => alert('focus');
     if (isMobile()) {
-      window.onblur = () => window.location.reload();
+      // window.onblur = () => window.location.reload();
     }
 
     return () => {

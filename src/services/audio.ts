@@ -130,14 +130,14 @@ export const AudioServiceBuilder = () => {
           }
           if (!muted && resource.inView && !globalMute) {
             player.volume.setValueCurveAtTime(
-              [-Infinity, -6],
+              [-Infinity, 0],
               Tone.now(),
               TONE_FADE_IN
             );
           } else {
             if (player.volume.value !== -Infinity) {
               player.volume.setValueCurveAtTime(
-                [-6, -Infinity],
+                [0, -Infinity],
                 Tone.now(),
                 TONE_FADE_OUT
               );

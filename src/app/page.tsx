@@ -36,7 +36,7 @@ export default function Book({
     <main className="flex max-w-md relative flex-col">
       <ButtonsBar
         top={4}
-        right={4}
+        right={5}
         width={10}
         book={book}
         audioMuted={false}

@@ -48,8 +48,8 @@ const ButtonsBar = ({
         height: width,
         right,
         width,
-        containerWidth: width * (length + 0.7),
-        containerRight: right + 5,
+        containerWidth: width * (length + 1.7) - 5,
+        containerRight: right + 0.5,
       })
     );
   }, [top, right, width, hide]);
@@ -71,6 +71,9 @@ const ButtonsBar = ({
           boxSizing: 'border-box',
           zIndex: 10001,
           overflow: 'visible',
+          // backgroundColor: '#595959',
+          backgroundColor: isOpen ? '#595959' : 'transparent',
+          transition: 'background-color 500ms easeInOut',
           backgroundSize: 'cover',
           backgroundRepeat: 'no-repeat',
           backgroundImage: 'url(/images/logo-icon.svg)',
@@ -96,15 +99,19 @@ const ButtonsBar = ({
           width: isOpen ? dimensions?.containerWidth : 0,
           borderTopLeftRadius: 180,
           borderBottomLeftRadius: 180,
+          borderTopRightRadius: 180,
+          borderBottomRightRadius: 180,
           color: 'white',
           boxSizing: 'border-box',
           zIndex: 10000,
-          border: '1px solid #eeeeeeee',
-          borderRight: 'none',
+          borderLeft: '0.5px solid #eee',
+          borderTop: '0.5px solid #eee',
+          borderBottom: '0.5px solid #eee',
+          
           background:
-            'linear-gradient(90deg, rgba(8,9,8,1) 0%, rgba(8,9,8,1) 86%, rgba(8,9,8,0) 100%)',
+            'linear-gradient(90deg, rgba(8,9,8,1) 0%, rgba(8,9,8,1) 85%, rgba(8,9,8,0) 86%, rgba(8,9,8,0) 100%)',
           filter: 'grayscale(0.3)',
-          transition: 'all 300ms',
+          transition: 'all 300ms ease',
         }}
       >
         {!hide?.home && (
@@ -114,6 +121,7 @@ const ButtonsBar = ({
             href="/"
             width={BUTTON_WIDTH}
             onClick={onExit}
+            hide={!isOpen}
           />
         )}
         {!hide?.book && (
@@ -124,6 +132,7 @@ const ButtonsBar = ({
             onClick={onExit}
             width={BUTTON_WIDTH}
             height={BUTTON_WIDTH - 0.7}
+            hide={!isOpen}
           />
         )}
         {!hide?.sound && (
@@ -133,6 +142,7 @@ const ButtonsBar = ({
             active={audioMuted}
             onClick={muteAudioHandler}
             width={BUTTON_WIDTH}
+            hide={!isOpen}
           />
         )}
       </div>

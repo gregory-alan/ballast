@@ -28,6 +28,7 @@ const BarButton = ({
   onClick = () => {},
   href = '/',
   active = false,
+  hide,
 }: {
   width: number;
   height?: number;
@@ -36,6 +37,7 @@ const BarButton = ({
   onClick?: ClickHandler;
   href?: string;
   active?: boolean;
+  hide: boolean;
 }) => {
   const [dimensions, setDimensions] = useState<{
     height: string;
@@ -58,7 +60,8 @@ const BarButton = ({
           className="button"
           onClick={() => onClick?.()}
           style={{
-            opacity: 0.8,
+            opacity: hide ? 0 : 0.8,
+            transition: 'opacity 1s ease',
             position: 'relative',
             height: dimensions?.height,
             width: dimensions?.width,
