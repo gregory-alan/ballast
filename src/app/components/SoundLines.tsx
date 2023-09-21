@@ -1,22 +1,18 @@
 import GeoPattern from 'geopattern';
 import { useInView } from 'react-intersection-observer';
 import { useEffect, useState } from 'react';
+import { useDebouncedCallback } from 'use-debounce';
 
 import {
   Sound,
   Sounds,
-  SoundKind,
   SoundAction,
 } from 'ballast/types/AudioService';
 import { computeBoxModel } from 'ballast/utils/units';
 
 const SHOW_SOUNDLINES = true;
 
-type SoundLineHandler = (
-  action: SoundAction,
-  slug: string,
-  kind: SoundKind
-) => void;
+type SoundLineHandler = (action: SoundAction, slug: string) => void;
 type SoundLine = Sound & {
   action: SoundAction[];
 };
@@ -28,7 +24,6 @@ const SoundLine = ({
   soundSlug,
   actions,
   color,
-  kind,
   onEnter,
   onExit,
   onClick,
@@ -40,19 +35,18 @@ const SoundLine = ({
   actions: SoundAction[];
   soundSlug: string;
   color: string;
-  kind: SoundKind;
   onEnter: SoundLineHandler;
   onExit: SoundLineHandler;
   onClick: (slug: string) => void;
   isVisible: boolean;
 }) => {
   const pattern = GeoPattern.generate(soundSlug, {
-    color: actions.includes('mute') || kind === 'howl' ? color : '#eee',
+    color:
+      actions.includes(SoundAction.TONEPLAYER_IN) ||
+      actions.includes(SoundAction.HOWL_IN)
+        ? color
+        : '#eee',
   });
-  const [preventFirstExitCall, setPreventFirstExitCall] =
-    useState<boolean>(true);
-  const [preventFirstEnterCall, setPreventFirstEnterCall] =
-    useState<boolean>(true);
   const [dimensions, setDimensions] = useState<{
     top: string;
     left: string;
@@ -63,6 +57,21 @@ const SoundLine = ({
     threshold: 0,
   });
 
+  const debounced = useDebouncedCallback((inView: boolean) => {
+    if (inView) {
+      onEnter(actions[0], soundSlug);
+    } else {
+      onExit(actions[1], soundSlug);
+    }
+  }, 100);
+
+  // intersection observable effect
+  useEffect(() => {
+    debounced(inView);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inView]);
+
+  // box model effect
   useEffect(() => {
     setDimensions(
       computeBoxModel({
@@ -73,21 +82,6 @@ const SoundLine = ({
       })
     );
   }, [start, end, col]);
-
-  useEffect(() => {
-    if (inView) {
-      // if (!preventFirstEnterCall || kind === 'howl') {
-      actions.forEach((action) => onEnter(action, soundSlug, kind));
-      // }
-      setPreventFirstEnterCall(false);
-    } else {
-      if (!preventFirstExitCall) {
-        actions.forEach((action) => onExit(action, soundSlug, kind));
-      }
-      setPreventFirstExitCall(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inView]);
 
   return (
     <div
@@ -107,7 +101,7 @@ const SoundLine = ({
         userSelect: 'none',
         color: !isVisible
           ? 'transparent'
-          : actions.includes('play') && kind === 'toneplayer'
+          : actions.includes(SoundAction.TONEPLAYER_GHOST_IN)
           ? 'black'
           : 'white',
         writingMode: 'vertical-rl',
@@ -117,9 +111,9 @@ const SoundLine = ({
       }}
     >
       <strong>{soundSlug}</strong> ({start} {`->`} {end},{' '}
-      {kind === 'howl' ? '𝗛' : '𝗧'}
-      {actions.map((value) => ({ play: '𝗣', mute: '𝗠' }[value]))})
-      
+      {actions.includes(SoundAction.HOWL_IN) && '𝗛𝗣'}
+      {actions.includes(SoundAction.TONEPLAYER_IN) && '𝗧𝗣𝗣'}
+      {actions.includes(SoundAction.TONEPLAYER_GHOST_IN) && '𝗧𝗣𝗠'})
     </div>
   );
 };
@@ -148,7 +142,6 @@ const SoundLinesColumn = ({
           end={end}
           col={n}
           actions={action}
-          kind={kind}
           soundSlug={slug}
           color={color}
           onEnter={onEnter}
@@ -187,7 +180,13 @@ export default function SoundLines({
         if (!column.find(({ end }) => start < end)) {
           column.push({
             ...sound,
-            action: ['play'],
+            action:
+              sound.kind === 'howl'
+                ? [SoundAction.HOWL_IN, SoundAction.HOWL_OUT]
+                : [
+                    SoundAction.TONEPLAYER_GHOST_IN,
+                    SoundAction.TONEPLAYER_GHOST_OUT,
+                  ],
           });
           sound.sessions.forEach((session) => {
             if (session[0] < start || session[1] > end) {
@@ -198,7 +197,7 @@ export default function SoundLines({
             if (sound.kind === 'toneplayer') {
               column.push({
                 ...{ ...sound, start: session[0], end: session[1] },
-                action: ['mute'],
+                action: [SoundAction.TONEPLAYER_IN, SoundAction.TONEPLAYER_OUT],
               });
             }
           });

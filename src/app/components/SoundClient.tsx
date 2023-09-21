@@ -2,10 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { AudioServiceBuilder } from 'ballast/services/audio';
 import {
   AudioServiceInstance,
-  AudioResourceViewStatus,
   ChapterSounds,
   SoundAction,
-  SoundKind,
   Sounds,
 } from 'ballast/types/AudioService';
 
@@ -98,13 +96,8 @@ export default function SoundsClient() {
       ({ activate }) => activateSoundLines(activate)
     );
 
-    EventService.current.listen<{ muted: boolean }>(
-      'mute-audio',
-      ({ muted }) => {
-        AudioService.current &&
-          AudioService.current.muteAllAudioResources(muted);
-        muteAudio(muted);
-      }
+    EventService.current.listen<{ muted: boolean }>('mute-audio', ({ muted }) =>
+      AudioService.current?.globalMuteResources(muted)
     );
 
     return () => {
@@ -113,6 +106,25 @@ export default function SoundsClient() {
     };
   }, []);
 
+  const debug = ({ slug, action }: { slug: string; action: number }) => {
+    const actions = [
+      'HOWL_IN',
+      'HOWL_OUT',
+      'TONEPLAYER_GHOST_IN',
+      'TONEPLAYER_IN',
+      'TONEPLAYER_OUT',
+      'TONEPLAYER_GHOST_OUT',
+    ];
+    const actionLabel = actions[action];
+    console.log(
+      `[${
+        actionLabel.indexOf('_IN') !== -1 ? '🌕' : '🌑'
+      } %c${actionLabel}%c] ${slug}`,
+      'color: cyan; font-weight: bold',
+      'color: white; font-weight: bold'
+    );
+  };
+
   return (
     soundLinesActivated && (
       <>
@@ -120,67 +132,40 @@ export default function SoundsClient() {
           sounds={sounds}
           isVisible={true}
           onClick={(slug) => AudioService.current?.debugAudioResource(slug)}
-          onEnter={(action: SoundAction, slug: string, kind: SoundKind) => {
-            console.log(
-              `🌕 %center %c${slug} %c(${kind}) %c→ %c${
-                action === 'play' ? 'PLAY ⏯️' : 'UNMUTE 🔔'
-              }`,
-              'color: cyan; font-weight: bold',
-              'color: white',
-              'color: white; font-style: italic',
-              'color: white',
-              'color: white; font-weight: bold'
-            );
-
-            if (action === 'play') {
-              if (kind === 'toneplayer') {
-                AudioService.current?.setAudioResourceViewStatus(
-                  slug,
-                  AudioResourceViewStatus.PARTIALLY_IN_VIEW
-                );
-              } else {
-                AudioService.current?.setAudioResourceViewStatus(
-                  slug,
-                  AudioResourceViewStatus.IN_VIEW
-                );
-              }
-              AudioService.current?.playAudioResource(slug);
-            } else if (action === 'mute' && !isAudioMuted) {
-              if (kind === 'toneplayer') {
-                AudioService.current?.setAudioResourceViewStatus(
-                  slug,
-                  AudioResourceViewStatus.IN_VIEW
-                );
-              }
-              AudioService.current?.muteAudioResource(slug, false);
+          onEnter={(action: SoundAction, slug: string) => {
+            debug({ slug, action });
+            switch (action) {
+              case SoundAction.HOWL_IN:
+                AudioService.current?.setAudioResourceViewState(slug, true);
+                AudioService.current?.muteAudioResource(slug, false);
+                AudioService.current?.playAudioResource(slug);
+                break;
+              case SoundAction.TONEPLAYER_GHOST_IN:
+                AudioService.current?.setAudioResourceViewState(slug, false);
+                AudioService.current?.playAudioResource(slug);
+                break;
+              case SoundAction.TONEPLAYER_IN:
+                AudioService.current?.setAudioResourceViewState(slug, true);
+                AudioService.current?.muteAudioResource(slug, false);
+                break;
             }
           }}
-          onExit={(action: SoundAction, slug: string, kind: SoundKind) => {
-            console.log(
-              `🌑 %cexit %c${slug} %c(${kind}) %c→ %c${
-                action === 'play' ? 'STOP ⏹️' : 'MUTE 🔕'
-              }`,
-              'color: steelblue',
-              'color: white',
-              'color: white; font-style: italic',
-              'color: white',
-              'color: white; font-weight: bold'
-            );
-
-            if (action === 'play') {
-              AudioService.current?.setAudioResourceViewStatus(
-                slug,
-                AudioResourceViewStatus.OUT_OF_VIEW
-              );
-              AudioService.current?.stopAudioResource(slug);
-            } else if (action === 'mute' && !isAudioMuted) {
-              if (kind === 'toneplayer') {
-                AudioService.current?.setAudioResourceViewStatus(
-                  slug,
-                  AudioResourceViewStatus.PARTIALLY_IN_VIEW
-                );
-              }
-              AudioService.current?.muteAudioResource(slug, true);
+          onExit={(action: SoundAction, slug: string) => {
+            debug({ slug, action });
+            switch (action) {
+              case SoundAction.HOWL_OUT:
+                AudioService.current?.setAudioResourceViewState(slug, false);
+                AudioService.current?.muteAudioResource(slug, true);
+                AudioService.current?.stopAudioResource(slug);
+                break;
+              case SoundAction.TONEPLAYER_GHOST_OUT:
+                AudioService.current?.setAudioResourceViewState(slug, false);
+                AudioService.current?.stopAudioResource(slug);
+                break;
+              case SoundAction.TONEPLAYER_OUT:
+                AudioService.current?.setAudioResourceViewState(slug, false);
+                AudioService.current?.muteAudioResource(slug, true);
+                break;
             }
           }}
         />

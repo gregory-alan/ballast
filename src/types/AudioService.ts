@@ -5,7 +5,14 @@ import { AudioServiceBuilder } from 'ballast/services/audio';
 
 export type SoundKind = 'toneplayer' | 'howl';
 export type SoundType = 'fx' | 'music' | 'ambient';
-export type SoundAction = 'play' | 'mute';
+export enum SoundAction {
+  HOWL_IN,
+  HOWL_OUT,
+  TONEPLAYER_GHOST_IN,
+  TONEPLAYER_IN,
+  TONEPLAYER_OUT,
+  TONEPLAYER_GHOST_OUT,
+}
 
 export type ChapterSounds = {
   chapter: number;
@@ -25,16 +32,10 @@ export type Sound = {
 
 export type Sounds = Sound[];
 
-export enum AudioResourceViewStatus {
-  OUT_OF_VIEW,
-  PARTIALLY_IN_VIEW,
-  IN_VIEW,
-};
-
 export type AudioResource = Sound &
   AudioResourceEventHandlers & {
     object: Howl | Tone.Player;
-    inView: AudioResourceViewStatus;
+    inView: boolean;
   };
 
 export type AudioResourceEventHandlers = {
@@ -48,4 +49,7 @@ export type AudioResourceEventHandlers = {
 
 export type AudioServiceInstance = ReturnType<typeof AudioServiceBuilder>;
 
-export type SoundClientStatus = { state: 'suspended' | 'running'; muted: boolean };
+export type SoundClientStatus = {
+  state: 'suspended' | 'running';
+  muted: boolean;
+};

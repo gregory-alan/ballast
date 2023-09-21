@@ -1,11 +1,7 @@
 import * as Tone from 'tone';
 import { Howl } from 'howler';
 
-import {
-  AudioResource,
-  Sounds,
-  AudioResourceViewStatus,
-} from 'ballast/types/AudioService';
+import { AudioResource, Sounds } from 'ballast/types/AudioService';
 
 export const AudioServiceBuilder = () => {
   ///////////
@@ -30,6 +26,7 @@ export const AudioServiceBuilder = () => {
   const removeAudioResource = (slug: string) => AudioResources.delete(slug);
   const audioResourceExists = (slug: string) => AudioResources.has(slug);
   const removeAllAudioResources = () => AudioResources.clear();
+
   const dumpAudioResources = () =>
     console.log(
       Array.from(AudioResources.entries()).reduce((obj, row) => {
@@ -38,21 +35,20 @@ export const AudioServiceBuilder = () => {
       }, {} as any)
     );
 
+  const debugAudioResource = (slug: string) => {
+    const resource = getAudioResource(slug);
+    console.log('💿', resource);
+  };
+
   ////////////
   // METHODS
   ////////////
-
   const _play = (resource?: AudioResource) => {
     if (resource) {
       switch (resource.kind) {
         case 'howl':
           const howl = resource.object as Howl;
           howl.play();
-          if (!globalMute) {
-            howl.mute(false);
-            howl.mute(false); // WTF, but twice is working, once not
-            howl.fade(0, 1, HOWL_FADE_IN);
-          }
           if (resource.loop) {
             howl.loop(true);
           }
@@ -60,7 +56,6 @@ export const AudioServiceBuilder = () => {
         case 'toneplayer':
           const player = resource.object as Tone.Player;
           if (player.loaded) {
-            player.volume.value = -Infinity;
             player.start();
           } else {
             console.error(`Can't play ${resource.slug}: not loaded`);
@@ -92,12 +87,8 @@ export const AudioServiceBuilder = () => {
       switch (resource.kind) {
         case 'howl':
           const howl = resource.object as Howl;
-          if (!globalMute) {
-            howl.fade(1, 0, HOWL_FADE_OUT);
-          }
           setTimeout(() => {
             howl.pause();
-            howl.mute(true);
           }, HOWL_FADE_OUT);
           // Note: dispose is down automatically by howler
           // https://github.com/goldfire/howler.js#pool-number-5
@@ -119,8 +110,17 @@ export const AudioServiceBuilder = () => {
       switch (resource.kind) {
         case 'howl':
           const howl = resource.object as Howl;
-          howl.mute(muted);
-          howl.volume(muted ? 0 : 1);
+          if (!muted && resource.inView && !globalMute) {
+            howl.mute(false);
+            howl.fade(0, 1, HOWL_FADE_IN);
+            setTimeout(() => howl.volume(1), HOWL_FADE_IN);
+          } else {
+            howl.fade(1, 0, HOWL_FADE_OUT);
+            setTimeout(() => {
+              howl.volume(0);
+              howl.mute(true);
+            }, HOWL_FADE_OUT);
+          }
           break;
         case 'toneplayer':
           const player = resource.object as Tone.Player;
@@ -128,18 +128,20 @@ export const AudioServiceBuilder = () => {
             console.error(`Can't (un)mute ${resource.slug}: not loaded`);
             return;
           }
-          if (!muted && resource.inView === AudioResourceViewStatus.IN_VIEW) {
+          if (!muted && resource.inView && !globalMute) {
             player.volume.setValueCurveAtTime(
               [-Infinity, -6],
               Tone.now(),
               TONE_FADE_IN
             );
           } else {
-            player.volume.setValueCurveAtTime(
-              [-6, -Infinity],
-              Tone.now(),
-              TONE_FADE_OUT
-            );
+            if (player.volume.value !== -Infinity) {
+              player.volume.setValueCurveAtTime(
+                [-6, -Infinity],
+                Tone.now(),
+                TONE_FADE_OUT
+              );
+            }
           }
           resource.onMuted && resource.onMuted(resource);
           break;
@@ -227,8 +229,8 @@ export const AudioServiceBuilder = () => {
     const player = new Tone.Player(
       `/sounds/${book}/${slug}.mp3`
     ).toDestination();
-    player.fadeIn = 0.5;
-    player.fadeOut = 0.5;
+    player.fadeIn = TONE_FADE_IN;
+    player.fadeOut = TONE_FADE_OUT;
     player.volume.value = -Infinity;
     const resource = {
       ...sound,
@@ -277,7 +279,7 @@ export const AudioServiceBuilder = () => {
       createAudioResource(
         {
           ...sound,
-          inView: AudioResourceViewStatus.OUT_OF_VIEW,
+          inView: false,
           onCreated: () => {},
         },
         book
@@ -290,7 +292,7 @@ export const AudioServiceBuilder = () => {
         createAudioResource(
           {
             ...sound,
-            inView: AudioResourceViewStatus.OUT_OF_VIEW,
+            inView: false,
             onCreated: () => {},
           },
           book
@@ -305,10 +307,16 @@ export const AudioServiceBuilder = () => {
    * Howler's howl is muted and volume set to [0, -6].
    * @param muted
    */
-  const muteAllAudioResources = (muted: boolean) => {
-    const resources = Array.from(getAllAudioResources());
-    resources.forEach((resource) => _mute(muted, resource));
+  const globalMuteResources = (muted: boolean) => {
     globalMute = muted;
+    const resources = Array.from(getAllAudioResources());
+    if (muted === true) {
+      resources.forEach((resource) => _mute(true, resource));
+    } else {
+      resources
+        .filter((resource) => resource.inView)
+        .forEach((resource) => _mute(false, resource));
+    }
   };
 
   /**
@@ -343,6 +351,17 @@ export const AudioServiceBuilder = () => {
   };
 
   /**
+   * This method pauses one AudioResource in memory.
+   * @param slug
+   * @param dispose
+   */
+  const pauseAudioResource = (slug: string) => {
+    const resource = getAudioResource(slug);
+    // NOT IMPLEMENTED YET; So far he usage is to use stop and pause the howl, but stop the toneplayers
+    // _pause(resource);
+  };
+
+  /**
    * This method stops all AudioResources in memory.
    * @param dispose
    */
@@ -367,39 +386,28 @@ export const AudioServiceBuilder = () => {
    * @param slug
    * @param status
    */
-  const setAudioResourceViewStatus = (
-    slug: string,
-    status: AudioResourceViewStatus
-  ) => {
+  const setAudioResourceViewState = (slug: string, inView: boolean) => {
     const resource = getAudioResource(slug);
     if (resource) {
-      updateAudioResource(slug, { ...resource, inView: status });
+      updateAudioResource(slug, { ...resource, inView });
     }
   };
 
-  /**
-   * When clicking on a <SoundLine />, log the current AudioResource
-   * @param slug
-   */
-  const debugAudioResource = (slug: string) => {
-    const resource = getAudioResource(slug);
-    console.log('💿', resource);
-  };
-
   return {
-    startAudioContext,
     createAudioResource,
     createAudioResources,
-    playAudioResource,
-    stopAudioResource,
-    stopAllAudioResources,
-    muteAudioResource,
-    muteAllAudioResources,
-    removeAudioResources,
-    removeAllAudioResources,
-    setAudioResourceViewStatus,
-    dumpAudioResources,
     debugAudioResource,
+    dumpAudioResources,
+    globalMuteResources,
+    muteAudioResource,
+    pauseAudioResource,
+    playAudioResource,
+    removeAllAudioResources,
+    removeAudioResources,
+    setAudioResourceViewState,
+    startAudioContext,
+    stopAllAudioResources,
+    stopAudioResource,
     // setMusicVolume,
     // setFXVolume,
     // setGlobalVolume,
