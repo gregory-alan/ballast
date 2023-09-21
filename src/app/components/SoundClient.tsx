@@ -13,6 +13,8 @@ import { EventServiceInstance } from 'ballast/types/EventService';
 import SoundLines from 'ballast/app/components/SoundLines';
 import { isMobile } from 'ballast/utils/isMobile';
 
+const SAFE_SOUNDLINES_ACTIVATION = 500;
+
 export default function SoundsClient() {
   const [sounds, setSounds] = useState<Sounds>([]);
   const AudioService = useRef<AudioServiceInstance | null>(null);
@@ -93,7 +95,15 @@ export default function SoundsClient() {
 
     EventService.current.listen<{ activate: boolean }>(
       'activate-soundlines',
-      ({ activate }) => activateSoundLines(activate)
+      ({ activate }) => {
+        if (activate) {
+          AudioService.current?.startAudioContext(
+            () => setTimeout(() => activateSoundLines(activate), SAFE_SOUNDLINES_ACTIVATION),
+            () => console.warn('context coudnt be activated')
+          );
+        }
+        activateSoundLines(activate);
+      }
     );
 
     EventService.current.listen<{ muted: boolean }>('mute-audio', ({ muted }) =>

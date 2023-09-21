@@ -155,17 +155,17 @@ export const AudioServiceBuilder = () => {
    * @param onAudioContextRunning
    */
   const startAudioContext = (
-    onAudioContextSuspended: () => void,
-    onAudioContextRunning: () => void
+    onAudioContextSuspended: (state?: string) => void,
+    onAudioContextRunning: (state?: string) => void
   ) => {
     Tone.start();
     setTimeout(() => {
       if (Tone.context.state === 'running') {
-        onAudioContextRunning();
+        onAudioContextRunning('running');
       }
     }, 1000);
     if (Tone.context.state !== 'running') {
-      onAudioContextSuspended();
+      onAudioContextSuspended('suspended');
     }
   };
 
