@@ -1,7 +1,11 @@
 import * as Tone from 'tone';
 import { Howl } from 'howler';
 
-import { AudioResource, Sounds } from 'ballast/types/AudioService';
+import {
+  AudioResource,
+  AudioResourceEventHandlers,
+  Sounds,
+} from 'ballast/types/AudioService';
 
 export const AudioServiceBuilder = () => {
   ///////////
@@ -68,7 +72,7 @@ export const AudioServiceBuilder = () => {
           //   removeAudioResource(resource.slug);
           //   const fallbackResource = {
           //     ...resource,
-          //     onLoaded: (resource: AudioResource) =>
+          //     onLoad: (resource: AudioResource) =>
           //     {
           //       muteAudioResource(resource.slug, false);
           //       playAudioResource(resource.slug);
@@ -181,7 +185,7 @@ export const AudioServiceBuilder = () => {
     sound: Omit<AudioResource, 'object'>,
     book: string
   ) => {
-    const { slug, onCreated, onLoaded, onMuted } = sound;
+    const { slug, onCreated, onLoad, onMuted, onPlay, onStop } = sound;
     try {
       const howl = new Howl({
         src: [
@@ -192,14 +196,15 @@ export const AudioServiceBuilder = () => {
         html5: true,
         mute: true,
         onmute: () => onMuted && onMuted(getAudioResource(slug)),
-        onload: () => onLoaded?.(sound),
-        // onplay: (soundId) => console.log('play', slug, soundId),
-        // onpause: (soundId) => console.log('pause', slug, soundId),
-        // onstop: (soundId) => console.log('stop', slug, soundId),
-        // onplayerror: (e) => console.error(e, slug),
+        onload: () => onLoad?.(sound),
+        onplay: () => onPlay?.(sound),
+        onpause: () => onStop?.(sound),
+        onstop: () => onStop?.(sound),
+        onplayerror: (id) => console.error(id, slug),
       });
       howl.volume(0);
 
+      // howl.on('load', () => { console.log('💿', howl), howl.play() });
       const resource = {
         ...sound,
         object: howl,
@@ -237,7 +242,7 @@ export const AudioServiceBuilder = () => {
       object: player,
     };
     addAudioResource(slug, resource);
-    onCreated && onCreated(getAudioResource(slug));
+    onCreated?.(getAudioResource(slug));
     return resource;
   };
 
@@ -271,7 +276,11 @@ export const AudioServiceBuilder = () => {
    * @param book
    * @returns AudioResource
    */
-  const createAudioResources = (sounds: Sounds, book: string) => {
+  const createAudioResources = (
+    sounds: Sounds,
+    book: string,
+    handlers?: AudioResourceEventHandlers
+  ) => {
     const howls = sounds.filter((sound) => sound.kind === 'howl');
     const toneplayers = sounds.filter((sound) => sound.kind === 'toneplayer');
 
@@ -280,7 +289,7 @@ export const AudioServiceBuilder = () => {
         {
           ...sound,
           inView: false,
-          onCreated: () => {},
+          ...handlers,
         },
         book
       )

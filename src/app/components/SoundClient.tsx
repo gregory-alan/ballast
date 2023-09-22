@@ -80,7 +80,7 @@ export default function SoundsClient() {
           .map((s) => s.sounds)
           .reduce((all, sounds) => [...all, ...sounds], []);
 
-        AudioService.current?.createAudioResources(toCreate, book);
+        AudioService.current?.createAudioResources(toCreate, book, { onLoad: (sound) => console.log('💿', sound) });
         AudioService.current?.removeAudioResources(toDelete);
 
         // 3) Set sounds for displaying in Soundlines

@@ -88,3 +88,187 @@ canvas {
 .modal {
   transition: opacity 0.2s ease-in-out;
 }
+
+/* ***** */
+/* FONTS */
+/* ***** */
+
+/* Averta Black Italic WOFF2 */
+@font-face {
+  font-family: 'Averta';
+  font-style: italic;
+  font-weight: 900;
+  src: url('/fonts/averta/averta-black-italic.woff2') format('woff2');
+}
+
+/* Averta Black WOFF2 */
+@font-face {
+  font-family: 'Averta';
+  font-weight: 900;
+  src: url('/fonts/averta/averta-black.woff2') format('woff2');
+}
+
+/* Averta Bold Italic WOFF2 */
+@font-face {
+  font-family: 'Averta';
+  font-style: italic;
+  font-weight: 700;
+  src: url('/fonts/averta/averta-bold-italic.woff2') format('woff2');
+}
+
+/* Averta Bold WOFF2 */
+@font-face {
+  font-family: 'Averta';
+  font-weight: 700;
+  src: url('/fonts/averta/averta-bold.woff2') format('woff2');
+}
+
+/* Averta Light Italic WOFF2 */
+@font-face {
+  font-family: 'Averta';
+  font-style: italic;
+  font-weight: 300;
+  src: url('/fonts/averta/averta-light-italic.woff2') format('woff2');
+}
+
+/* Averta Light WOFF2 */
+@font-face {
+  font-family: 'Averta';
+  font-weight: 300;
+  src: url('/fonts/averta/averta-light.woff2') format('woff2');
+}
+
+/* Averta Regular Italic WOFF2 */
+@font-face {
+  font-family: 'Averta';
+  font-style: italic;
+  font-weight: 400;
+  src: url('/fonts/averta/averta-regular-italic.woff2') format('woff2');
+}
+
+/* Averta Regular WOFF2 */
+@font-face {
+  font-family: 'Averta';
+  font-weight: 400;
+  src: url('/fonts/averta/averta-regular.woff2') format('woff2');
+}
+
+/* Averta Semibold Italic WOFF2 */
+@font-face {
+  font-family: 'Averta';
+  font-style: italic;
+  font-weight: 600;
+  src: url('/fonts/averta/averta-semibold-italic.woff2') format('woff2');
+}
+
+/* Averta Semibold WOFF2 */
+@font-face {
+  font-family: 'Averta';
+  font-weight: 600;
+  src: url('/fonts/averta/averta-semibold.woff2') format('woff2');
+}
+
+/* Averta Thin Italic WOFF2 */
+@font-face {
+  font-family: 'Averta';
+  font-style: italic;
+  font-weight: 100;
+  src: url('/fonts/averta/averta-thin-italic.woff2') format('woff2');
+}
+
+/* Averta Thin WOFF2 */
+@font-face {
+  font-family: 'Averta';
+  font-weight: 100;
+  src: url('/fonts/averta/averta-thin.woff2') format('woff2');
+}
+
+/* Averta Black Italic TTF */
+@font-face {
+  font-family: 'Averta';
+  font-style: italic;
+  font-weight: 900;
+  src: url('/fonts/averta/averta-black-italic.ttf') format('truetype');
+}
+
+/* Averta Black TTF */
+@font-face {
+  font-family: 'Averta';
+  font-weight: 900;
+  src: url('/fonts/averta/averta-black.ttf') format('truetype');
+}
+
+/* Averta Bold Italic TTF */
+@font-face {
+  font-family: 'Averta';
+  font-style: italic;
+  font-weight: 700;
+  src: url('/fonts/averta/averta-bold-italic.ttf') format('truetype');
+}
+
+/* Averta Bold TTF */
+@font-face {
+  font-family: 'Averta';
+  font-weight: 700;
+  src: url('/fonts/averta/averta-bold.ttf') format('truetype');
+}
+
+/* Averta Light Italic TTF */
+@font-face {
+  font-family: 'Averta';
+  font-style: italic;
+  font-weight: 300;
+  src: url('/fonts/averta/averta-light-italic.ttf') format('truetype');
+}
+
+/* Averta Light TTF */
+@font-face {
+  font-family: 'Averta';
+  font-weight: 300;
+  src: url('/fonts/averta/averta-light.ttf') format('truetype');
+}
+
+/* Averta Regular Italic TTF */
+@font-face {
+  font-family: 'Averta';
+  font-style: italic;
+  font-weight: 400;
+  src: url('/fonts/averta/averta-regular-italic.ttf') format('truetype');
+}
+
+/* Averta Regular TTF */
+@font-face {
+  font-family: 'Averta';
+  font-weight: 400;
+  src: url('/fonts/averta/averta-regular.ttf') format('truetype');
+}
+
+/* Averta Semibold Italic TTF */
+@font-face {
+  font-family: 'Averta';
+  font-style: italic;
+  font-weight: 600;
+  src: url('/fonts/averta/averta-semibold-italic.ttf') format('truetype');
+}
+
+/* Averta Semibold TTF */
+@font-face {
+  font-family: 'Averta';
+  font-weight: 600;
+  src: url('/fonts/averta/averta-semibold.ttf') format('truetype');
+}
+
+/* Averta Thin Italic TTF */
+@font-face {
+  font-family: 'Averta';
+  font-style: italic;
+  font-weight: 100;
+  src: url('/fonts/averta/averta-thin-italic.ttf') format('truetype');
+}
+
+/* Averta Thin TTF */
+@font-face {
+  font-family: 'Averta';
+  font-weight: 100;
+  src: url('/fonts/averta/averta-thin.ttf') format('truetype');
+}

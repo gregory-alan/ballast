@@ -40,9 +40,9 @@ export type AudioResource = Sound &
 
 export type AudioResourceEventHandlers = {
   onCreated?: (...args: any) => void;
-  onLoaded?: (...args: any) => void;
-  onPlayed?: (...args: any) => void;
-  onStopped?: (...args: any) => void;
+  onLoad?: (...args: any) => void;
+  onPlay?: (...args: any) => void;
+  onStop?: (...args: any) => void;
   onEnded?: (...args: any) => void;
   onMuted?: (...args: any) => void;
 };
