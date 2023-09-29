@@ -9,7 +9,7 @@ export default function Book({}: {}) {
     AudioService.createAudioResource(
       {
         type: 'music',
-        kind: 'howl',
+        kind: 'toneplayer',
         slug: slug,
         color: 'red',
         loop: false,
@@ -17,7 +17,17 @@ export default function Book({}: {}) {
         end: 100,
         inView: true,
         sessions: [[0, 0]],
-        onPlay: () => console.log(new Date().toISOString()),
+        onLoad: (sound) => {
+          console.log('loaded', sound, new Date().toISOString());
+          AudioService.muteAudioResource(slug, false);
+          AudioService.playAudioResource(sound.slug);
+        },
+        onMuted: (sound) => {
+          console.log('muted', sound, new Date().toISOString());
+        },
+        onPlay: (sound) => {
+          console.log('played', sound, new Date().toISOString());
+        },
       },
       'livre-1'
     );
@@ -39,9 +49,9 @@ export default function Book({}: {}) {
           margin: '4px',
         }}
         onClick={() => {
-          load('sound-1.1');
-          load('sound-1.2');
-          load('sound-1.3');
+          load('file_example_MP3_5MG');
+          // load('sound-0 .2');
+          // load('sound-0 .3');
         }}
       >
         LOAD
