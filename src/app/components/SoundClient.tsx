@@ -110,6 +110,11 @@ export default function SoundsClient() {
       AudioService.current?.globalMuteResources(muted)
     );
 
+    EventService.current.listen<{ muted: boolean }>('kill-audio', ({ muted }) => {
+      AudioService.current?.stopAllAudioResources();
+      AudioService.current?.removeAllAudioResources();
+    });
+
     // TODO: better out of focus handling, but so far, we simply reload the page which will do the trick
     // check https://github.com/serkanyersen/ifvisible.js/
     // window.onfocus = () => alert('focus');

@@ -94,7 +94,7 @@ export default function Chapter({
   // Handlers
   /////////////
   const buttonsBarClickHandler = () => openButtonsBar(!isButtonsBarOpen);
-  const onExit = () => {
+  const onNextChapter = () => {
     EventService.current = EventServiceBuilder();
     EventService.current.trigger('activate-soundlines', {
       activate: false,
@@ -105,6 +105,11 @@ export default function Chapter({
         activate: true,
       });
     }, HIDE_DURATION + 1000);
+  };
+
+  const onExit = () => {
+    EventService.current = EventServiceBuilder();
+    EventService.current.trigger('kill-audio', {});
   };
 
   const modalClickHandler = () => {
@@ -162,7 +167,7 @@ export default function Chapter({
           width={50}
           href={`/${book}/${chapterNumber + 1 > 3 ? 1 : chapterNumber + 1}`}
           text="Chapitre Suivant"
-          onClick={onExit}
+          onClick={onNextChapter}
         />
       </div>
       <div

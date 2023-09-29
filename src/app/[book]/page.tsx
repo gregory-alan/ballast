@@ -61,11 +61,11 @@ export default function Book({
         }}
       >
         {chapters.map((chapter, i) => (
-          <Link key={i} href={`/${book}/${chapter.slug}`}>
+          <Link key={i} href={`/${book}/${chapter.number}`}>
             <ChapterSquare
               chapter={{
                 ...chapter,
-                vignette: `/images/${book}/${chapter.slug}/vignette.webp`,
+                vignette: `/images/${book}/${chapter.number}/vignette.webp`,
               }}
               invert={i % 2 === 0}
             />
