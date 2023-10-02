@@ -3,7 +3,7 @@
 import './globals.css';
 import { Inter } from 'next/font/google';
 
-import SoundClient from 'ballast/app/components/SoundClient';
+import Orchestrator from 'ballast/app/components/Orchestrator';
 
 import Piwik from 'ballast/app/components/Piwik';
 
@@ -25,7 +25,7 @@ export default function RootLayout({
         className={`${inter.className} w-full relative flex flex-col items-center justify-center`}
         style={{ height: 'auto' }}
       >
-        <SoundClient />
+        <Orchestrator />
         <Piwik>{children}</Piwik>
       </body>
     </html>

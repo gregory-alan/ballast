@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Cover from 'ballast/app/components/Cover';
 import ChapterSquare from 'ballast/app/components/ChapterSquare';
 import Splash from 'ballast/app/components/Splash';
-import { Sounds } from 'ballast/types/AudioService';
+import { Sounds } from 'ballast/types/services/Audio';
 import Link from 'next/link';
 import ButtonsBar from 'ballast/app/components/ButtonsBar';
 

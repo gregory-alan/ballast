@@ -3,7 +3,7 @@ import Image from 'next/image';
 export default function Splash() {
   return (
     <div className="splash">
-      <Image
+      {/* <Image
         className="relative"
         src={`/images/logo-with-catchphrase.svg`}
         alt="Ballast (logo)"
@@ -18,7 +18,7 @@ export default function Splash() {
         style={{ marginTop: '10vh' }}
         width={200}
         height={1}
-      />
+      /> */}
     </div>
   );
 }

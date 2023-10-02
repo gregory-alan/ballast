@@ -1,14 +1,55 @@
-[
-  {
-    "chapter": 1,
-    "images": ["main.webp"]
-  },
-  {
-    "chapter": 2,
-    "images": ["main.webp"]
-  },
-  {
-    "chapter": 3,
-    "images": ["main.webp"]
-  }
-]
+{
+  "chapters": [
+    {
+      "id": 1,
+      "chunks": [
+        {
+          "id": 1,
+          "image": "1.1.webp"
+        },
+        {
+          "id": 2,
+          "image": "1.2.webp"
+        },
+        {
+          "id": 3,
+          "image": "1.3.webp"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "chunks": [
+        {
+          "id": 1,
+          "image": "1.1.webp"
+        },
+        {
+          "id": 2,
+          "image": "1.2.webp"
+        },
+        {
+          "id": 3,
+          "image": "1.3.webp"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "chunks": [
+        {
+          "id": 1,
+          "image": "1.1.webp"
+        },
+        {
+          "id": 2,
+          "image": "1.2.webp"
+        },
+        {
+          "id": 3,
+          "image": "1.3.webp"
+        }
+      ]
+    }
+  ]
+}

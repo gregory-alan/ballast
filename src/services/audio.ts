@@ -5,7 +5,7 @@ import {
   AudioResource,
   AudioResourceEventHandlers,
   Sounds,
-} from 'ballast/types/AudioService';
+} from 'ballast/types/services/Audio';
 
 export const AudioServiceBuilder = () => {
   ///////////
@@ -184,9 +184,9 @@ export const AudioServiceBuilder = () => {
   const createHowlerAudioResource = (
     sound: Omit<AudioResource, 'object'>,
     book: string
-  ) => {
+  ): Promise<string | null> => {
     const { slug, onCreated, onLoad, onMuted, onPlay, onStop } = sound;
-    try {
+    return new Promise((resolve, reject) => {
       const howl = new Howl({
         src: [
           // `/sounds/${book}/${slug}.webm`,
@@ -196,26 +196,23 @@ export const AudioServiceBuilder = () => {
         html5: true,
         mute: true,
         onmute: () => onMuted && onMuted(getAudioResource(slug)),
-        onload: () => onLoad?.(sound),
+        onload: () => {
+          onLoad?.(slug);
+          resolve(slug);
+        },
         onplay: () => onPlay?.(sound),
         onpause: () => onStop?.(sound),
         onstop: () => onStop?.(sound),
         onplayerror: (id) => console.error(id, slug),
       });
       howl.volume(0);
-
-      // howl.on('load', () => { console.log('💿', howl), howl.play() });
       const resource = {
         ...sound,
         object: howl,
       };
       addAudioResource(slug, resource);
       onCreated && onCreated(getAudioResource(slug));
-      return resource;
-    } catch (e) {
-      console.error(e);
-      return undefined;
-    }
+    });
   };
 
   /**
@@ -229,21 +226,23 @@ export const AudioServiceBuilder = () => {
     sound: Omit<AudioResource, 'object'>,
     book: string
   ) => {
-    const { slug, onCreated } = sound;
-    // const player = new Tone.Player(`/sounds/${book}/${slug}.webm`).toDestination();
-    const player = new Tone.Player(
-      `/sounds/${book}/${slug}.mp3`
-    ).toDestination();
-    player.fadeIn = TONE_FADE_IN;
-    player.fadeOut = TONE_FADE_OUT;
-    player.volume.value = -Infinity;
-    const resource = {
-      ...sound,
-      object: player,
-    };
-    addAudioResource(slug, resource);
-    onCreated?.(getAudioResource(slug));
-    return resource;
+    return new Promise((resolve, reject) => {
+      const { slug, onCreated, onLoad } = sound;
+      // const player = new Tone.Player(`/sounds/${book}/${slug}.webm`).toDestination();
+      const player = new Tone.Player(`/sounds/${book}/${slug}.mp3`, () => {
+        onLoad?.(slug);
+        resolve(slug);
+      }).toDestination();
+      player.fadeIn = TONE_FADE_IN;
+      player.fadeOut = TONE_FADE_OUT;
+      player.volume.value = -Infinity;
+      const resource = {
+        ...sound,
+        object: player,
+      };
+      addAudioResource(slug, resource);
+      onCreated?.(getAudioResource(slug));
+    });
   };
 
   /**
@@ -252,19 +251,19 @@ export const AudioServiceBuilder = () => {
    * @param book
    * @returns AudioResource
    */
-  const createAudioResource = (
+  const createAudioResource = async (
     sound: Omit<AudioResource, 'object'>,
     book: string
-  ): AudioResource | undefined => {
+  ) => {
     if (audioResourceExists(sound.slug)) {
       return;
     }
     switch (sound.kind) {
       case 'howl':
-        return createHowlerAudioResource(sound, book);
+        return await createHowlerAudioResource(sound, book);
       case 'toneplayer':
         // TODO: here do something for groups player... should go with Players I guess?
-        return createToneAudioResource(sound, book);
+        return await createToneAudioResource(sound, book);
     }
   };
 
@@ -279,35 +278,38 @@ export const AudioServiceBuilder = () => {
   const createAudioResources = (
     sounds: Sounds,
     book: string,
+    onSoundsLoaded: (args: any) => void,
     handlers?: AudioResourceEventHandlers
   ) => {
     const howls = sounds.filter((sound) => sound.kind === 'howl');
     const toneplayers = sounds.filter((sound) => sound.kind === 'toneplayer');
 
-    howls.forEach((sound) =>
-      createAudioResource(
-        {
-          ...sound,
-          inView: false,
-          ...handlers,
-        },
-        book
-      )
-    );
-
-    // We delay the loading of toneplayers because we always start with a howl that should be loaded first
-    setTimeout(() => {
-      toneplayers.forEach((sound) =>
+    const loadAll = Promise.all([
+      ...howls.map((sound) =>
         createAudioResource(
           {
             ...sound,
             inView: false,
-            onCreated: () => {},
+            ...handlers,
           },
           book
         )
-      );
-    }, 1000);
+      ),
+      ...toneplayers.map((sound) =>
+        createAudioResource(
+          {
+            ...sound,
+            inView: false,
+            ...handlers,
+          },
+          book
+        )
+      ),
+    ]);
+    loadAll.then((sounds) => {
+      console.log('💿 all sounds loaded!');
+      onSoundsLoaded(sounds);
+    });
   };
 
   /**

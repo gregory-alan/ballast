@@ -17,7 +17,7 @@ const ButtonsBar = ({
   onExit,
   clickHandler,
   muteAudioHandler,
-  book,
+  bookPath,
   hide,
 }: {
   top: number;
@@ -28,7 +28,7 @@ const ButtonsBar = ({
   onExit: () => void;
   clickHandler: () => void;
   muteAudioHandler: () => void;
-  book?: string;
+  bookPath?: string;
   hide?: { book?: boolean; home?: boolean; sound?: boolean };
 }) => {
   const [dimensions, setDimensions] = useState<{
@@ -128,7 +128,7 @@ const ButtonsBar = ({
           <BarButton
             role="book"
             kind="link"
-            href={`/${book}`}
+            href={bookPath}
             onClick={onExit}
             width={BUTTON_WIDTH}
             height={BUTTON_WIDTH - 0.7}

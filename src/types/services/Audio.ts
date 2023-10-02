@@ -14,11 +14,6 @@ export enum SoundAction {
   TONEPLAYER_GHOST_OUT,
 }
 
-export type ChapterSounds = {
-  chapter: number;
-  sounds: Sound[];
-}[];
-
 export type Sound = {
   slug: string;
   kind: SoundKind;
@@ -27,7 +22,7 @@ export type Sound = {
   loop: boolean;
   start: number;
   end: number;
-  sessions: [[number, number]];
+  sessions: [number, number][];
 };
 
 export type Sounds = Sound[];

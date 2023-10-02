@@ -7,7 +7,7 @@ import {
   Sound,
   Sounds,
   SoundAction,
-} from 'ballast/types/AudioService';
+} from 'ballast/types/services/Audio';
 import { computeBoxModel } from 'ballast/utils/units';
 
 const SHOW_SOUNDLINES = true;

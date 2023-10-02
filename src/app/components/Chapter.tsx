@@ -1,35 +1,92 @@
 import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
 
 import Modal from 'ballast/app/components/Modal';
 import Button from 'ballast/app/components/Button';
 import LinkButton from 'ballast/app/components/LinkButton';
 import ButtonsBar from 'ballast/app/components/ButtonsBar';
 
-import { Images } from 'ballast/types/Image';
-
 import { EventServiceBuilder } from 'ballast/services/events';
-import { EventServiceInstance } from 'ballast/types/EventService';
+import { EventServiceInstance } from 'ballast/types/services/Events';
 
-const HIDE_DURATION = 3000;
+const HIDE_DURATION = 100;
+
+const Chunk = ({
+  image,
+  nextChapterPath,
+  onNextChapter,
+}: {
+  image: string;
+  nextChapterPath?: string;
+  onNextChapter: () => void;
+}) => {
+  const EventService = useRef<EventServiceInstance | null>(null);
+  const [fullyLoaded, setFullyLoaded] = useState<boolean>(false);
+  const [imageLoaded, setImageLoaded] = useState<boolean>(false);
+  const [soundsLoaded, setSoundsLoaded] = useState<boolean>(false);
+
+  useEffect(() => {
+    EventService.current = EventServiceBuilder();
+    EventService.current.listen('sounds-loaded', () => setSoundsLoaded(true));
+  }, []);
+
+  useEffect(
+    () => setFullyLoaded(imageLoaded && soundsLoaded),
+    [imageLoaded, soundsLoaded]
+  );
+
+  return (
+    <>
+      {!fullyLoaded && (
+        <Image
+          className="relative"
+          src={`/images/loading.svg`}
+          alt="Chargement"
+          width={200}
+          height={1}
+        />
+      )}
+      <Image
+        key={image}
+        className="relative"
+        style={{ visibility: imageLoaded ? 'hidden' : 'visible' }}
+        onLoadingComplete={() => {
+          console.log('image loaded');
+          setImageLoaded(true);
+        }}
+        src={image}
+        alt="une image"
+        width={10000}
+        height={1}
+        priority
+      />
+      {nextChapterPath && fullyLoaded && (
+        <LinkButton
+          text="Chapitre Suivant"
+          href={nextChapterPath}
+          onClick={onNextChapter}
+          top={408}
+          width={50}
+        />
+      )}
+    </>
+  );
+};
 
 export default function Chapter({
-  book,
-  chapterNumber,
+  chunks,
+  bookPath,
+  nextChapterPath,
 }: {
-  book: string;
-  chapterNumber: number;
-  showSoundLines: boolean;
+  chunks: { image: string }[];
+  bookPath: string;
+  nextChapterPath?: string;
 }) {
-  const router = useRouter();
-
   const EventService = useRef<EventServiceInstance | null>(null);
   const [visible, show] = useState<boolean>(false);
   const [modalVisible, showModal] = useState<boolean>(false);
   const [audioMuted, muteAudio] = useState<boolean>(true);
   const [isButtonsBarOpen, openButtonsBar] = useState<boolean>(false);
-  const [images, setImages] = useState<Images>([]);
 
   // Check for Audio muted stored status
   useEffect(() => {
@@ -69,26 +126,26 @@ export default function Chapter({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [audioMuted]);
 
-  // Import the images
-  useEffect(() => {
-    // IMAGES
-    import(`ballast/data/books/${book}/images.json`)
-      .then(
-        ({
-          default: images,
-        }: {
-          default: { chapter: number; images: Images }[];
-        }) => {
-          const results =
-            images.find((data) => data.chapter === chapterNumber)?.images || [];
-          setImages(results);
-        }
-      )
-      .catch(() => {
-        console.error('not found');
-        // router.push('/404');
-      });
-  }, [book, chapterNumber, router]);
+  // // Import the images
+  // useEffect(() => {
+  //   // IMAGES
+  //   import(`ballast/data/books/${book}/images.json`)
+  //     .then(
+  //       ({
+  //         default: images,
+  //       }: {
+  //         default: Images;
+  //       }) => {
+  //         const results =
+  //           images.chapters.find(({ id }) => chapterNumber === id);
+  //         setImages(results.);
+  //       }
+  //     )
+  //     .catch(() => {
+  //       console.error('not found');
+  //       // router.push('/404');
+  //     });
+  // }, [book, chapterNumber, router]);
 
   /////////////
   // Handlers
@@ -137,17 +194,14 @@ export default function Chapter({
         transition: 'opacity 0.5s linear',
       }}
     >
-      {/* IMAGES */}
       <div className="flex-1 relative">
-        {images.map((image) => (
-          <Image
-            key={image}
-            className="relative"
-            src={`/images/${book}/${chapterNumber}/${image}`}
-            alt="Next.js Logo"
-            width={10000}
-            height={1}
-            priority
+        {/* CHUNKS */}
+        {chunks.map((chunk, i) => (
+          <Chunk
+            key={i}
+            image={chunk.image}
+            onNextChapter={onNextChapter}
+            nextChapterPath={nextChapterPath}
           />
         ))}
         {/* UI */}
@@ -155,19 +209,12 @@ export default function Chapter({
           top={4}
           right={4}
           width={10}
-          book={book}
+          bookPath={bookPath}
           audioMuted={audioMuted}
           muteAudioHandler={muteAudioHandler}
           isOpen={isButtonsBarOpen}
           onExit={onExit}
           clickHandler={buttonsBarClickHandler}
-        />
-        <LinkButton
-          top={408}
-          width={50}
-          href={`/${book}/${chapterNumber + 1 > 3 ? 1 : chapterNumber + 1}`}
-          text="Chapitre Suivant"
-          onClick={onNextChapter}
         />
       </div>
       <div

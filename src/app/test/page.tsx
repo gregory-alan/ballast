@@ -65,9 +65,7 @@ export default function Book({}: {}) {
           margin: '4px',
         }}
         onClick={() => {
-          play('sound-1.1');
-          play('sound-1.2');
-          play('sound-1.3');
+          play('file_example_MP3_5MG');
         }}
       >
         PLAY

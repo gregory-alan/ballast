@@ -1,16 +1,14 @@
 'use client';
 
 import { useContext, useEffect, useRef } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 
 import { EventServiceBuilder } from 'ballast/services/events';
-import { EventServiceInstance } from 'ballast/types/EventService';
+import { EventServiceInstance } from 'ballast/types/services/Events';
 
 import Chapter from 'ballast/app/components/Chapter';
 
 import { ReaderContext } from 'ballast/contexts/ReaderContext';
-
-import Link from 'next/link';
 
 export default function Reader({
   params,
@@ -35,9 +33,9 @@ export default function Reader({
   return (
     <>
       <Chapter
-        book={book}
-        chapterNumber={chapter}
-        showSoundLines={showSoundLines}
+        bookPath={`/${book}`}
+        nextChapterPath={`/${book}/${chapter + 1}`} // TEMP
+        chunks={[{ image: `/images/${book}/${chapter}/main.webp` }]} // TEMP
       />
     </>
   );
