@@ -1,4 +1,4 @@
-export type SoundsData = {
+export type Chunks = {
   chapters: Chapter[];
 }
 
@@ -9,9 +9,20 @@ export type Chapter = {
 
 export type Chunk = {
   id:       number;
-  chapter?: number;
+  chapter:  number;
   sounds:   Sound[];
+  image:    string;
+  loadingStatus: {
+    image:  LoadingStatus;
+    sounds: LoadingStatus;
+  };
 }
+
+export enum LoadingStatus {
+  'INIT',
+  'LOADING',
+  'LOADED',
+};
 
 export type SoundKind = 'howl' | 'toneplayer';
 export type SoundType = 'music' | 'ambient' | 'fx';

@@ -306,10 +306,7 @@ export const AudioServiceBuilder = () => {
         )
       ),
     ]);
-    loadAll.then((sounds) => {
-      console.log('💿 all sounds loaded!');
-      onSoundsLoaded(sounds);
-    });
+    loadAll.then(onSoundsLoaded);
   };
 
   /**

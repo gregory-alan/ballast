@@ -26,8 +26,8 @@ const Chunk = ({
   const [soundsLoaded, setSoundsLoaded] = useState<boolean>(false);
 
   useEffect(() => {
-    EventService.current = EventServiceBuilder();
-    EventService.current.listen('sounds-loaded', () => setSoundsLoaded(true));
+    // EventService.current = EventServiceBuilder();
+    // EventService.current.listen('sounds-loaded', () => setSoundsLoaded(true));
   }, []);
 
   useEffect(
@@ -37,7 +37,7 @@ const Chunk = ({
 
   return (
     <>
-      {!fullyLoaded && (
+      {!imageLoaded && (
         <Image
           className="relative"
           src={`/images/loading.svg`}
@@ -49,10 +49,12 @@ const Chunk = ({
       <Image
         key={image}
         className="relative"
-        style={{ visibility: imageLoaded ? 'hidden' : 'visible' }}
+        style={{ visibility: imageLoaded ? 'visible' : 'hidden' }}
         onLoadingComplete={() => {
-          console.log('image loaded');
+          console.log('🎇 image loaded', image);
           setImageLoaded(true);
+          EventService.current = EventServiceBuilder();
+          EventService.current?.trigger('image-loaded', { image });
         }}
         src={image}
         alt="une image"
@@ -60,6 +62,7 @@ const Chunk = ({
         height={1}
         priority
       />
+      <div className="loading-trigger" />
       {nextChapterPath && fullyLoaded && (
         <LinkButton
           text="Chapitre Suivant"
@@ -74,19 +77,28 @@ const Chunk = ({
 };
 
 export default function Chapter({
-  chunks,
   bookPath,
   nextChapterPath,
 }: {
-  chunks: { image: string }[];
   bookPath: string;
   nextChapterPath?: string;
 }) {
   const EventService = useRef<EventServiceInstance | null>(null);
+  const [images, setImages] = useState<string[]>([]);
   const [visible, show] = useState<boolean>(false);
   const [modalVisible, showModal] = useState<boolean>(false);
   const [audioMuted, muteAudio] = useState<boolean>(true);
   const [isButtonsBarOpen, openButtonsBar] = useState<boolean>(false);
+
+  useEffect(() => {
+    EventService.current = EventServiceBuilder();
+    EventService.current.listen<{ image: string }>(
+      'new-chunk-image',
+      ({ image }) => {
+        setImages((images) => [...images, image]);
+      }
+    );
+  }, [images]);
 
   // Check for Audio muted stored status
   useEffect(() => {
@@ -97,6 +109,7 @@ export default function Chapter({
   // Show the Chapter (hidden for a fake background loading transition)
   useEffect(() => {
     setTimeout(() => show(true), HIDE_DURATION);
+    console.log('CHAPTER LOADED');
   }, []);
 
   // Check audio context and show modal accordingly
@@ -125,27 +138,6 @@ export default function Chapter({
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [audioMuted]);
-
-  // // Import the images
-  // useEffect(() => {
-  //   // IMAGES
-  //   import(`ballast/data/books/${book}/images.json`)
-  //     .then(
-  //       ({
-  //         default: images,
-  //       }: {
-  //         default: Images;
-  //       }) => {
-  //         const results =
-  //           images.chapters.find(({ id }) => chapterNumber === id);
-  //         setImages(results.);
-  //       }
-  //     )
-  //     .catch(() => {
-  //       console.error('not found');
-  //       // router.push('/404');
-  //     });
-  // }, [book, chapterNumber, router]);
 
   /////////////
   // Handlers
@@ -196,10 +188,10 @@ export default function Chapter({
     >
       <div className="flex-1 relative">
         {/* CHUNKS */}
-        {chunks.map((chunk, i) => (
+        {images.map((image, i) => (
           <Chunk
             key={i}
-            image={chunk.image}
+            image={image}
             onNextChapter={onNextChapter}
             nextChapterPath={nextChapterPath}
           />

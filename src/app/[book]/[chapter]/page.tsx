@@ -1,12 +1,13 @@
 'use client';
 
-import { useContext, useEffect, useRef } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 import { EventServiceBuilder } from 'ballast/services/events';
 import { EventServiceInstance } from 'ballast/types/services/Events';
 
 import Chapter from 'ballast/app/components/Chapter';
+import Loading from 'ballast/app/components/Loading';
 
 import { ReaderContext } from 'ballast/contexts/ReaderContext';
 
@@ -15,6 +16,7 @@ export default function Reader({
 }: {
   params: { book: string; chapter: string };
 }) {
+  const [isFirstChunkLoaded, setFirstChunkLoaded] = useState<boolean>(true);
   const EventService = useRef<EventServiceInstance | null>(null);
   let { book, chapter } = useContext(ReaderContext);
 
@@ -32,11 +34,13 @@ export default function Reader({
 
   return (
     <>
-      <Chapter
-        bookPath={`/${book}`}
-        nextChapterPath={`/${book}/${chapter + 1}`} // TEMP
-        chunks={[{ image: `/images/${book}/${chapter}/main.webp` }]} // TEMP
-      />
+      <Loading isVisible={!isFirstChunkLoaded} /> 
+      {isFirstChunkLoaded && (
+        <Chapter
+          bookPath={`/${book}`}
+          nextChapterPath={`/${book}/${chapter + 1}`} // TEMP
+        />
+      )}
     </>
   );
 }

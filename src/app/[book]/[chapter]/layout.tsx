@@ -2,7 +2,6 @@
 
 import { useRouter } from 'next/navigation';
 
-import Splash from 'ballast/app/components/Splash';
 import { ReaderContext } from 'ballast/contexts/ReaderContext';
 
 export default function ChapterLayout({
@@ -22,7 +21,6 @@ export default function ChapterLayout({
 
   return (
     <>
-      <Splash />
       <ReaderContext.Provider value={{ chapter, book }}>
         {children}
       </ReaderContext.Provider>

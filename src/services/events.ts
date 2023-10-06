@@ -1,8 +1,10 @@
+import { Events } from 'ballast/types/services/Events';
+
 export const EventServiceBuilder = () => {
   const body = document.querySelector('body');
 
   const listen = <T>(
-    eventName: string,
+    eventName: Events,
     listener: (data: T) => void
   ) => {
     body?.addEventListener(eventName, (event) => {
@@ -11,7 +13,7 @@ export const EventServiceBuilder = () => {
     });
   };
 
-  const trigger = <T>(eventName: string, data: T) => {
+  const trigger = <T>(eventName: Events, data: T) => {
     const event = new CustomEvent(eventName, { detail: data });
     body?.dispatchEvent(event);
   };

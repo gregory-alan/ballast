@@ -5,7 +5,7 @@ import {
   AudioServiceInstance,
   SoundAction,
 } from 'ballast/types/services/Audio';
-import { SoundsData } from 'ballast/types/data/Sounds';
+import { Chunks, Sound, LoadingStatus, Chunk } from 'ballast/types/data/Chunks';
 
 import { EventServiceBuilder } from 'ballast/services/events';
 import { EventServiceInstance } from 'ballast/types/services/Events';
@@ -18,23 +18,35 @@ const MAX_CHUNKS_TO_LOAD = 8;
 
 export default function Orchestrator() {
   const [bookSlug, setBookSlug] = useState<string>();
-  const [sounds, setSounds] = useState<SoundsData>();
   const [soundLinesActivated, activateSoundLines] = useState<boolean>(false);
+  const chunks = useRef<Chunks>();
   const AudioService = useRef<AudioServiceInstance | null>(null);
   const EventService = useRef<EventServiceInstance | null>(null);
   const chunkCursor = useRef<number>(0);
   const chapterCursor = useRef<number>(0);
-  const chunks = useRef<
-    Map<{ chapter: number; id: number }, { loaded: boolean }>
-  >(new Map());
 
-  const dynamicSoundsImport = async (book: string) => {
+  const dynamicChunksImport = async (book: string) => {
     try {
-      const data = (await import(`ballast/data/books/${book}/sounds.json`)) as {
-        default: SoundsData;
+      const data = (await import(`ballast/data/books/${book}/chunks.json`)) as {
+        default: Chunks;
       };
       console.log('⬆️ load:', data);
-      return data.default;
+      return {
+        chapters: data.default.chapters.map((chapter) => {
+          return {
+            ...chapter,
+            chunks: chapter.chunks.map((chunk) => {
+              return {
+                ...chunk,
+                loadingStatus: {
+                  image: LoadingStatus.INIT,
+                  sounds: LoadingStatus.INIT,
+                },
+              };
+            }),
+          };
+        }),
+      };
     } catch (e) {
       console.error(`FILE NOT FOUND: ${book}/sounds.json`);
       return null;
@@ -54,7 +66,7 @@ export default function Orchestrator() {
       chapter: string; // 🤔 why events convert number to string?
       showSoundLines: boolean;
     }>('page-params', async ({ book, chapter, showSoundLines }) => {
-      console.log(book, chapter);
+      console.log(book, chapter, showSoundLines);
       // 1) Check if audio context is running in order to display the modal
       const triggerAudioContextStatus = (running: boolean) => () =>
         EventService.current?.trigger('audiocontext-status', { running });
@@ -64,15 +76,15 @@ export default function Orchestrator() {
         triggerAudioContextStatus(true)
       );
 
-      // 2) Import sounds
-      const sounds = await dynamicSoundsImport(book);
-      if (!sounds) {
-        console.error('Failed loading sounds');
+      // 2) Import Chunks
+      const importedChunks = await dynamicChunksImport(book);
+      if (!importedChunks) {
+        console.error('Failed loading chunks');
         return;
       }
-      setSounds(sounds);
-      setBookSlug(book);
+      chunks.current = importedChunks;
       chapterCursor.current = parseInt(chapter, 10);
+      setBookSlug(book);
     });
 
     // TEMP
@@ -82,7 +94,7 @@ export default function Orchestrator() {
     );
   }, []);
 
-  // Chunks
+  // Chunks creation
   useEffect(() => {
     EventService.current = EventServiceBuilder();
     EventService.current.listen('load-next-chunks', async () => {
@@ -95,23 +107,27 @@ export default function Orchestrator() {
         chapterNumber: number,
         quantity: number
       ) => {
-        let chapter = sounds?.chapters.find(
+        let chapter = chunks.current?.chapters.find(
           (chapter) => chapter.id === chapterNumber
         );
         if (!chapter) {
           return [];
         }
 
-        let chunks = chapter.chunks
+        let selectedChunks = chapter.chunks
           .filter((chunk) => chunk.id > cursor && chunk.id <= cursor + quantity)
           .map((chunk) => ({ ...chunk, chapter: chapterNumber }));
-        if (chunks.length < quantity) {
-          chunks = [
-            ...chunks,
-            ...selectChunks(0, chapterNumber + 1, quantity - chunks.length),
+        if (selectedChunks.length < quantity) {
+          selectedChunks = [
+            ...selectedChunks,
+            ...selectChunks(
+              0,
+              chapterNumber + 1,
+              quantity - selectedChunks.length
+            ),
           ];
         }
-        return chunks;
+        return selectedChunks;
       };
 
       const chunksToLoad = selectChunks(
@@ -119,35 +135,75 @@ export default function Orchestrator() {
         chapterCursor.current,
         MAX_CHUNKS_TO_LOAD
       );
-      console.log('💿  chunks', chunksToLoad);
 
-      // load Chunk
-      // onLoad, mark chunk as loaded
+      const createSounds = async (chunk: Chunk) => {
+        AudioService.current?.createAudioResources(
+          chunk.sounds,
+          bookSlug,
+          () => {
+            console.log('💿 all sounds loaded');
+            // trigger
+            chunk.loadingStatus.sounds = LoadingStatus.LOADED;
+            console.log(chunk.chapter, chunk.id, chunk.loadingStatus)
+            if (chunk.loadingStatus.image === LoadingStatus.LOADED) {
+              console.log('THIS CHUNK IS FULLY LOADED', chunk);
+            }
+          },
+          {
+            onLoad: (sound) => console.log('💿 loaded', sound),
+          }
+        );
+      };
 
-      // 1) List the sound to create
-      const soundsToCreate = chunksToLoad
-        .map((chunk) => chunk.sounds)
-        .reduce((all, sounds) => [...all, ...sounds], []);
+      const createImage = async (image: string) => {
+        EventService.current?.trigger('new-chunk-image', {
+          image: `/images/${bookSlug}/${image}`,
+        });
+      };
 
-      AudioService.current?.createAudioResources(
-        soundsToCreate,
-        bookSlug,
-        () => {
-          chunksToLoad.forEach((chunk) =>
-            chunks.current.set(
-              { chapter: chunk.chapter, id: chunk.id },
-              { loaded: true }
-            )
-          );
-          console.log(Array.from(chunks.current.entries()));
-        },
-        {
-          onLoad: (sound) => console.log('💿', sound),
-        }
-      );
+      chunksToLoad.forEach(async (chunk) => {
+        console.log('⬆️ loading chunk', chunk);
+        createSounds(chunk);
+        createImage(chunk.image);
+        chunk.loadingStatus = {
+          image: LoadingStatus.LOADING,
+          sounds: LoadingStatus.LOADING,
+        };
+      });
       // AudioService.current?.removeAudioResources(toDelete);
     });
-  }, [sounds, bookSlug]);
+  }, [chunks, bookSlug]);
+
+  // Chunks Image loaded
+  useEffect(() => {
+    EventService.current = EventServiceBuilder();
+    EventService.current.listen<{ image: string }>(
+      'image-loaded',
+      ({ image }) => {
+        const [filename, chapter, chunk] =
+          image.match(/(\d+).(\d+)\.webp$/) || [];
+        if (
+          filename !== undefined &&
+          chapter !== undefined &&
+          chunk !== undefined
+        ) {
+          const myChapter = chunks.current?.chapters.find(
+            (c) => c.id === parseInt(chapter, 10)
+          );
+          const myChunk = myChapter?.chunks.find(
+            (c) => c.id === parseInt(chunk, 10)
+          );
+          console.log('🌄 image loaded', myChunk)
+          if (myChunk) {
+            myChunk.loadingStatus.image = LoadingStatus.LOADED;
+            if (myChunk.loadingStatus.sounds === LoadingStatus.LOADED) {
+              console.log('THIS CHUNK IS FULLY LOADED', myChunk);
+            }
+          }
+        }
+      }
+    );
+  }, [chunks]);
 
   // Activate SoundLines
   useEffect(() => {
@@ -213,8 +269,7 @@ export default function Orchestrator() {
   };
 
   return (
-    soundLinesActivated &&
-    sounds && (
+    soundLinesActivated && (
       <>
         <Link href="/livre-1/2" style={{ zIndex: 1000000, color: 'white' }}>
           <div>MON LIEN</div>
