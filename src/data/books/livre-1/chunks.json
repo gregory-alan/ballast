@@ -1,259 +1,247 @@
-{
-  "chapters": [
-    {
-      "id": 1,
-      "chunks": [
-        {
-          "id": 1,
-          "image": "1.1.webp",
-          "sounds": [
-            {
-              "slug": "sound-0.1",
-              "type": "music",
-              "kind": "howl",
-              "color": "#c90d0d",
-              "loop": true,
-              "start": 0,
-              "end": 300,
-              "sessions": [[0, 300]]
-            }
-          ]
-        },
-        {
-          "id": 2,
-          "image": "1.2.webp",
-          "sounds": [
-            {
-              "slug": "sound-0.2",
-              "type": "music",
-              "kind": "toneplayer",
-              "color": "#0dc90d",
-              "loop": false,
-              "start": 500,
-              "end": 1200,
-              "sessions": [[500, 900]]
-            }
-          ]
-        },
-        {
-          "id": 3,
-          "image": "1.3.webp",
-          "sounds": [
-            {
-              "slug": "sound-0.3",
-              "type": "music",
-              "kind": "toneplayer",
-              "color": "#0dc90d",
-              "loop": false,
-              "start": 500,
-              "end": 1200,
-              "sessions": [[500, 900]]
-            }
-          ]
-        },
-        {
-          "id": 4,
-          "image": "1.4.webp",
-          "sounds": [
-            {
-              "slug": "sound-1.1",
-              "type": "music",
-              "kind": "toneplayer",
-              "color": "#0dc90d",
-              "loop": false,
-              "start": 500,
-              "end": 1200,
-              "sessions": [[500, 900]]
-            }
-          ]
-        },
-        {
-          "id": 5,
-          "image": "1.5.webp",
-          "sounds": [
-            {
-              "slug": "sound-1.2",
-              "type": "music",
-              "kind": "toneplayer",
-              "color": "#0dc90d",
-              "loop": false,
-              "start": 500,
-              "end": 1200,
-              "sessions": [[500, 900]]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": 2,
-      "chunks": [
-        {
-          "id": 1,
-          "image": "2.1.webp",
-          "sounds": [
-            {
-              "slug": "sound-1.3",
-              "type": "music",
-              "kind": "howl",
-              "color": "#c90d0d",
-              "loop": true,
-              "start": 0,
-              "end": 300,
-              "sessions": [[0, 300]]
-            }
-          ]
-        },
-        {
-          "id": 2,
-          "image": "2.2.webp",
-          "sounds": [
-            {
-              "slug": "sound-1.4",
-              "type": "music",
-              "kind": "toneplayer",
-              "color": "#0dc90d",
-              "loop": false,
-              "start": 500,
-              "end": 1200,
-              "sessions": [[500, 900]]
-            }
-          ]
-        },
-        {
-          "id": 3,
-          "image": "2.3.webp",
-          "sounds": [
-            {
-              "slug": "sound-1.5",
-              "type": "music",
-              "kind": "toneplayer",
-              "color": "#0dc90d",
-              "loop": false,
-              "start": 500,
-              "end": 1200,
-              "sessions": [[500, 900]]
-            }
-          ]
-        },
-        {
-          "id": 4,
-          "image": "2.4.webp",
-          "sounds": [
-            {
-              "slug": "sound-2.1",
-              "type": "music",
-              "kind": "toneplayer",
-              "color": "#0dc90d",
-              "loop": false,
-              "start": 500,
-              "end": 1200,
-              "sessions": [[500, 900]]
-            }
-          ]
-        },
-        {
-          "id": 5,
-          "image": "2.5.webp",
-          "sounds": [
-            {
-              "slug": "sound-2.2",
-              "type": "music",
-              "kind": "toneplayer",
-              "color": "#0dc90d",
-              "loop": false,
-              "start": 500,
-              "end": 1200,
-              "sessions": [[500, 900]]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": 3,
-      "chunks": [
-        {
-          "id": 1,
-          "image": "3.1.webp",
-          "sounds": [
-            {
-              "slug": "sound-2.3",
-              "type": "music",
-              "kind": "howl",
-              "color": "#c90d0d",
-              "loop": true,
-              "start": 0,
-              "end": 300,
-              "sessions": [[0, 300]]
-            }
-          ]
-        },
-        {
-          "id": 2,
-          "image": "3.2.webp",
-          "sounds": [
-            {
-              "slug": "sound-2.4",
-              "type": "music",
-              "kind": "toneplayer",
-              "color": "#0dc90d",
-              "loop": false,
-              "start": 500,
-              "end": 1200,
-              "sessions": [[500, 900]]
-            }
-          ]
-        },
-        {
-          "id": 3,
-          "image": "3.3.webp",
-          "sounds": [
-            {
-              "slug": "sound-2.5",
-              "type": "music",
-              "kind": "toneplayer",
-              "color": "#0dc90d",
-              "loop": false,
-              "start": 500,
-              "end": 1200,
-              "sessions": [[500, 900]]
-            }
-          ]
-        },
-        {
-          "id": 4,
-          "image": "3.4.webp",
-          "sounds": [
-            {
-              "slug": "sound-3.1",
-              "type": "music",
-              "kind": "toneplayer",
-              "color": "#0dc90d",
-              "loop": false,
-              "start": 500,
-              "end": 1200,
-              "sessions": [[500, 900]]
-            }
-          ]
-        },
-        {
-          "id": 5,
-          "image": "3.5.webp",
-          "sounds": [
-            {
-              "slug": "sound-3.2",
-              "type": "music",
-              "kind": "toneplayer",
-              "color": "#0dc90d",
-              "loop": false,
-              "start": 500,
-              "end": 1200,
-              "sessions": [[500, 900]]
-            }
-          ]
-        }
-      ]
-    }
-  ]
-}
+[
+  {
+    "id": "1.1",
+    "image": "1.1.webp",
+    "sounds": [
+      {
+        "slug": "sound-1.1.1",
+        "type": "music",
+        "kind": "howl",
+        "color": "#c90d0d",
+        "loop": true,
+        "start": 0,
+        "end": 300,
+        "sessions": [[0, 300]]
+      }
+    ]
+  },
+  {
+    "id": "1.2",
+    "image": "1.2.webp",
+    "sounds": [
+      {
+        "slug": "sound-1.2.1",
+        "type": "music",
+        "kind": "toneplayer",
+        "color": "#0dc90d",
+        "loop": false,
+        "start": 500,
+        "end": 1200,
+        "sessions": [[500, 900]]
+      }
+    ]
+  },
+  {
+    "id": "1.3",
+    "image": "1.3.webp",
+    "sounds": [
+      {
+        "slug": "sound-1.3.1",
+        "type": "music",
+        "kind": "toneplayer",
+        "color": "#0dc90d",
+        "loop": false,
+        "start": 500,
+        "end": 1200,
+        "sessions": [[500, 900]]
+      }
+    ]
+  },
+  {
+    "id": "1.4",
+    "image": "1.4.webp",
+    "sounds": [
+      {
+        "slug": "sound-1.4.1",
+        "type": "music",
+        "kind": "toneplayer",
+        "color": "#0dc90d",
+        "loop": false,
+        "start": 500,
+        "end": 1200,
+        "sessions": [[500, 900]]
+      }
+    ]
+  },
+  {
+    "id": "1.5",
+    "image": "1.5.webp",
+    "sounds": [
+      {
+        "slug": "sound-1.5.1",
+        "type": "music",
+        "kind": "toneplayer",
+        "color": "#0dc90d",
+        "loop": false,
+        "start": 500,
+        "end": 1200,
+        "sessions": [[500, 900]]
+      }
+    ]
+  },
+  {
+    "id": "2.1",
+    "image": "2.1.webp",
+    "sounds": [
+      {
+        "slug": "sound-2.1.1",
+        "type": "music",
+        "kind": "howl",
+        "color": "#c90d0d",
+        "loop": true,
+        "start": 0,
+        "end": 300,
+        "sessions": [[0, 300]]
+      }
+    ]
+  },
+  {
+    "id": "2.2",
+    "image": "2.2.webp",
+    "sounds": [
+      {
+        "slug": "sound-2.2.1",
+        "type": "music",
+        "kind": "toneplayer",
+        "color": "#0dc90d",
+        "loop": false,
+        "start": 500,
+        "end": 1200,
+        "sessions": [[500, 900]]
+      }
+    ]
+  },
+  {
+    "id": "2.3",
+    "image": "2.3.webp",
+    "sounds": [
+      {
+        "slug": "sound-2.3.1",
+        "type": "music",
+        "kind": "toneplayer",
+        "color": "#0dc90d",
+        "loop": false,
+        "start": 500,
+        "end": 1200,
+        "sessions": [[500, 900]]
+      }
+    ]
+  },
+  {
+    "id": "2.4",
+    "image": "2.4.webp",
+    "sounds": [
+      {
+        "slug": "sound-2.4.1",
+        "type": "music",
+        "kind": "toneplayer",
+        "color": "#0dc90d",
+        "loop": false,
+        "start": 500,
+        "end": 1200,
+        "sessions": [[500, 900]]
+      }
+    ]
+  },
+  {
+    "id": "2.5",
+    "image": "2.5.webp",
+    "sounds": [
+      {
+        "slug": "sound-2.5.1",
+        "type": "music",
+        "kind": "toneplayer",
+        "color": "#0dc90d",
+        "loop": false,
+        "start": 500,
+        "end": 1200,
+        "sessions": [[500, 900]]
+      }
+    ]
+  },
+  {
+    "id": "3.1",
+    "chunks": [
+      {
+        "id": 1,
+        "image": "3.1.webp",
+        "sounds": [
+          {
+            "slug": "sound-3.1.1",
+            "type": "music",
+            "kind": "howl",
+            "color": "#c90d0d",
+            "loop": true,
+            "start": 0,
+            "end": 300,
+            "sessions": [[0, 300]]
+          }
+        ]
+      },
+      {
+        "id": "3.2",
+        "image": "3.2.webp",
+        "sounds": [
+          {
+            "slug": "sound-3.2.1",
+            "type": "music",
+            "kind": "toneplayer",
+            "color": "#0dc90d",
+            "loop": false,
+            "start": 500,
+            "end": 1200,
+            "sessions": [[500, 900]]
+          }
+        ]
+      },
+      {
+        "id": "3.3",
+        "image": "3.3.webp",
+        "sounds": [
+          {
+            "slug": "sound-3.3.1",
+            "type": "music",
+            "kind": "toneplayer",
+            "color": "#0dc90d",
+            "loop": false,
+            "start": 500,
+            "end": 1200,
+            "sessions": [[500, 900]]
+          }
+        ]
+      },
+      {
+        "id": "3.4",
+        "image": "3.4.webp",
+        "sounds": [
+          {
+            "slug": "sound-3.4.1",
+            "type": "music",
+            "kind": "toneplayer",
+            "color": "#0dc90d",
+            "loop": false,
+            "start": 500,
+            "end": 1200,
+            "sessions": [[500, 900]]
+          }
+        ]
+      },
+      {
+        "id": "3.5",
+        "image": "3.5.webp",
+        "sounds": [
+          {
+            "slug": "sound-3.5.1",
+            "type": "music",
+            "kind": "toneplayer",
+            "color": "#0dc90d",
+            "loop": false,
+            "start": 500,
+            "end": 1200,
+            "sessions": [[500, 900]]
+          }
+        ]
+      }
+    ]
+  }
+]

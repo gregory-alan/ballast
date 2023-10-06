@@ -83,7 +83,7 @@ export default function Chapter({
   bookPath: string;
   nextChapterPath?: string;
 }) {
-  const EventService = useRef<EventServiceInstance | null>(null);
+  const EventService = useRef<EventServiceInstance>(EventServiceBuilder());
   const [images, setImages] = useState<string[]>([]);
   const [visible, show] = useState<boolean>(false);
   const [modalVisible, showModal] = useState<boolean>(false);
@@ -91,14 +91,13 @@ export default function Chapter({
   const [isButtonsBarOpen, openButtonsBar] = useState<boolean>(false);
 
   useEffect(() => {
-    EventService.current = EventServiceBuilder();
     EventService.current.listen<{ image: string }>(
       'new-chunk-image',
       ({ image }) => {
         setImages((images) => [...images, image]);
       }
     );
-  }, [images]);
+  }, []);
 
   // Check for Audio muted stored status
   useEffect(() => {
@@ -109,7 +108,6 @@ export default function Chapter({
   // Show the Chapter (hidden for a fake background loading transition)
   useEffect(() => {
     setTimeout(() => show(true), HIDE_DURATION);
-    console.log('CHAPTER LOADED');
   }, []);
 
   // Check audio context and show modal accordingly

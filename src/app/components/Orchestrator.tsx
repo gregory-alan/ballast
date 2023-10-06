@@ -16,167 +16,152 @@ import { isMobile } from 'ballast/utils/isMobile';
 const SAFE_SOUNDLINES_ACTIVATION = 500;
 const MAX_CHUNKS_TO_LOAD = 8;
 
+async function wait(milliseconds: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, milliseconds);
+  });
+}
+
+const triggerAudioContextStatus =
+  (ES: EventServiceInstance, running: boolean) => () =>
+    ES.trigger('audiocontext-status', { running });
+
+const createSounds = (AS: AudioServiceInstance, bookSlug: string) => (chunk: Chunk) => {
+  AS.createAudioResources(
+    chunk.sounds,
+    bookSlug,
+    () => {
+      console.log('💿 all sounds loaded');
+      // trigger
+      chunk.loadingStatus.sounds = LoadingStatus.LOADED;
+      if (chunk.loadingStatus.image === LoadingStatus.LOADED) {
+        console.log('THIS CHUNK IS FULLY LOADED', chunk);
+      }
+    },
+    {
+      onLoad: (sound) => console.log('💿 loaded', sound),
+    }
+  );
+};
+
+const createImage = (ES: EventServiceInstance, bookSlug: string) => (image: string) => {
+  ES.trigger('new-chunk-image', {
+    image: `/images/${bookSlug}/${image}`,
+  });
+};
+
+const dynamicChunksImport = async (book: string) => {
+  try {
+    const data = (await import(`ballast/data/books/${book}/chunks.json`)) as {
+      default: Chunks;
+    };
+    console.log('⬆️ load:', data);
+    return data.default;
+  } catch (e) {
+    console.error(`FILE NOT FOUND: ${book}/sounds.json`);
+    return null;
+  }
+};
+
+/**
+ * 📦: Orchestrator
+ * @returns void
+ */
 export default function Orchestrator() {
   const [bookSlug, setBookSlug] = useState<string>();
   const [soundLinesActivated, activateSoundLines] = useState<boolean>(false);
-  const chunks = useRef<Chunks>();
+  const chunksMap = useRef<Map<string, Chunk>>(new Map());
   const AudioService = useRef<AudioServiceInstance | null>(null);
-  const EventService = useRef<EventServiceInstance | null>(null);
+  const EventService = useRef<EventServiceInstance>(EventServiceBuilder());
   const chunkCursor = useRef<number>(0);
   const chapterCursor = useRef<number>(0);
 
-  const dynamicChunksImport = async (book: string) => {
-    try {
-      const data = (await import(`ballast/data/books/${book}/chunks.json`)) as {
-        default: Chunks;
-      };
-      console.log('⬆️ load:', data);
-      return {
-        chapters: data.default.chapters.map((chapter) => {
-          return {
-            ...chapter,
-            chunks: chapter.chunks.map((chunk) => {
-              return {
-                ...chunk,
-                loadingStatus: {
-                  image: LoadingStatus.INIT,
-                  sounds: LoadingStatus.INIT,
-                },
-              };
-            }),
-          };
-        }),
-      };
-    } catch (e) {
-      console.error(`FILE NOT FOUND: ${book}/sounds.json`);
-      return null;
-    }
-  };
-
-  // AudioService init
+  // 🪝: AudioService initialization
   useEffect(() => {
     AudioService.current = AudioServiceBuilder();
   }, []);
 
-  // Page params
+  // 🪝: on Page params event, import Chunks data
   useEffect(() => {
-    EventService.current = EventServiceBuilder();
     EventService.current.listen<{
       book: string;
       chapter: string; // 🤔 why events convert number to string?
       showSoundLines: boolean;
     }>('page-params', async ({ book, chapter, showSoundLines }) => {
-      console.log(book, chapter, showSoundLines);
-      // 1) Check if audio context is running in order to display the modal
-      const triggerAudioContextStatus = (running: boolean) => () =>
-        EventService.current?.trigger('audiocontext-status', { running });
+      EventService.current = EventServiceBuilder();
 
+      // 📕: Params
+      setBookSlug(book);
+
+      // 🔈: Audio Context
       AudioService.current?.startAudioContext(
-        triggerAudioContextStatus(false),
-        triggerAudioContextStatus(true)
+        triggerAudioContextStatus(EventService.current, false),
+        triggerAudioContextStatus(EventService.current, true)
       );
 
-      // 2) Import Chunks
+      // ⬆️ Import Chunks
       const importedChunks = await dynamicChunksImport(book);
       if (!importedChunks) {
         console.error('Failed loading chunks');
         return;
       }
-      chunks.current = importedChunks;
-      chapterCursor.current = parseInt(chapter, 10);
-      setBookSlug(book);
+      importedChunks.forEach((chunk) => chunksMap.current.set(chunk.id, {
+        ...chunk,
+        loadingStatus: {
+          image: LoadingStatus.INIT,
+          sounds: LoadingStatus.INIT,
+        }}));
+      console.log('🗺️', chunksMap.current.entries());
+      // chapterCursor.current = parseInt(chapter, 10);
     });
 
-    // TEMP
+    // TEMP...
     setTimeout(
-      () => EventService.current?.trigger('load-next-chunks', {}),
+      () => EventService.current.trigger('load-next-chunks', {}),
       2000
     );
   }, []);
 
-  // Chunks creation
+  // 🪝: Chunks image and sounds creation
   useEffect(() => {
-    EventService.current = EventServiceBuilder();
     EventService.current.listen('load-next-chunks', async () => {
       if (!bookSlug) {
         return;
       }
 
-      const selectChunks = (
-        cursor: number,
-        chapterNumber: number,
-        quantity: number
-      ) => {
-        let chapter = chunks.current?.chapters.find(
-          (chapter) => chapter.id === chapterNumber
-        );
-        if (!chapter) {
-          return [];
+      const selectChunks = (cursor: number, quantity: number) => {
+        if (chunksMap.current) {
+          return Array.from(chunksMap.current.values()).slice(cursor, cursor + quantity);
         }
-
-        let selectedChunks = chapter.chunks
-          .filter((chunk) => chunk.id > cursor && chunk.id <= cursor + quantity)
-          .map((chunk) => ({ ...chunk, chapter: chapterNumber }));
-        if (selectedChunks.length < quantity) {
-          selectedChunks = [
-            ...selectedChunks,
-            ...selectChunks(
-              0,
-              chapterNumber + 1,
-              quantity - selectedChunks.length
-            ),
-          ];
-        }
-        return selectedChunks;
+        return [];
       };
 
       const chunksToLoad = selectChunks(
         chunkCursor.current,
-        chapterCursor.current,
         MAX_CHUNKS_TO_LOAD
       );
 
-      const createSounds = async (chunk: Chunk) => {
-        AudioService.current?.createAudioResources(
-          chunk.sounds,
-          bookSlug,
-          () => {
-            console.log('💿 all sounds loaded');
-            // trigger
-            chunk.loadingStatus.sounds = LoadingStatus.LOADED;
-            console.log(chunk.chapter, chunk.id, chunk.loadingStatus)
-            if (chunk.loadingStatus.image === LoadingStatus.LOADED) {
-              console.log('THIS CHUNK IS FULLY LOADED', chunk);
-            }
-          },
-          {
-            onLoad: (sound) => console.log('💿 loaded', sound),
-          }
-        );
-      };
+      console.log('👾 CHUNKS TO LOAD', chunksToLoad);
 
-      const createImage = async (image: string) => {
-        EventService.current?.trigger('new-chunk-image', {
-          image: `/images/${bookSlug}/${image}`,
-        });
-      };
-
-      chunksToLoad.forEach(async (chunk) => {
+      for (let i = 0; i < chunksToLoad.length; i++) {
+        const chunk = chunksToLoad[i];
         console.log('⬆️ loading chunk', chunk);
-        createSounds(chunk);
-        createImage(chunk.image);
+        if (AudioService.current) {
+          createSounds(AudioService.current, bookSlug)(chunk);
+        }
+        createImage(EventService.current, bookSlug)(chunk.image);
         chunk.loadingStatus = {
           image: LoadingStatus.LOADING,
           sounds: LoadingStatus.LOADING,
         };
-      });
+        await wait(100); // 🧐 Why am I forced to delay here to respect the Chunks array order?
+      }
       // AudioService.current?.removeAudioResources(toDelete);
     });
-  }, [chunks, bookSlug]);
+  }, [bookSlug]);
 
-  // Chunks Image loaded
+  // 🪝: Chunks Image loaded event
   useEffect(() => {
-    EventService.current = EventServiceBuilder();
     EventService.current.listen<{ image: string }>(
       'image-loaded',
       ({ image }) => {
@@ -187,13 +172,8 @@ export default function Orchestrator() {
           chapter !== undefined &&
           chunk !== undefined
         ) {
-          const myChapter = chunks.current?.chapters.find(
-            (c) => c.id === parseInt(chapter, 10)
-          );
-          const myChunk = myChapter?.chunks.find(
-            (c) => c.id === parseInt(chunk, 10)
-          );
-          console.log('🌄 image loaded', myChunk)
+          const myChunk = chunksMap.current?.get([chapter, chunk].join('.'));
+          console.log('🌄 image loaded', myChunk);
           if (myChunk) {
             myChunk.loadingStatus.image = LoadingStatus.LOADED;
             if (myChunk.loadingStatus.sounds === LoadingStatus.LOADED) {
@@ -203,11 +183,10 @@ export default function Orchestrator() {
         }
       }
     );
-  }, [chunks]);
+  }, []);
 
-  // Activate SoundLines
+  // 🪝: Activate SoundLines event
   useEffect(() => {
-    EventService.current = EventServiceBuilder();
     EventService.current.listen<{ activate: boolean }>(
       'activate-soundlines',
       ({ activate }) => {
@@ -226,9 +205,8 @@ export default function Orchestrator() {
     );
   }, []);
 
-  // Mute and Kill Audio
+  // 🪝: Mute and Kill Audio events
   useEffect(() => {
-    EventService.current = EventServiceBuilder();
     EventService.current.listen<{ muted: boolean }>('mute-audio', ({ muted }) =>
       AudioService.current?.globalMuteResources(muted)
     );

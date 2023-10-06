@@ -1,14 +1,7 @@
-export type Chunks = {
-  chapters: Chapter[];
-}
-
-export type Chapter = {
-  id:     number;
-  chunks: Chunk[];
-}
+export type Chunks = Chunk[];
 
 export type Chunk = {
-  id:       number;
+  id:       string;
   chapter:  number;
   sounds:   Sound[];
   image:    string;
