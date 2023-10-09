@@ -227,21 +227,31 @@ export const AudioServiceBuilder = () => {
     book: string
   ) => {
     return new Promise((resolve, reject) => {
-      const { slug, onCreated, onLoad } = sound;
-      // const player = new Tone.Player(`/sounds/${book}/${slug}.webm`).toDestination();
-      const player = new Tone.Player(`/sounds/${book}/${slug}.mp3`, () => {
-        onLoad?.(slug);
-        resolve(slug);
-      }).toDestination();
-      player.fadeIn = TONE_FADE_IN;
-      player.fadeOut = TONE_FADE_OUT;
-      player.volume.value = -Infinity;
-      const resource = {
-        ...sound,
-        object: player,
-      };
-      addAudioResource(slug, resource);
-      onCreated?.(getAudioResource(slug));
+      const { slug, onCreated, onLoad, onError } = sound;
+      try {
+        const player = new Tone.Player({
+          url: `/sounds/${book}/${slug}.mp3`, // TODO: ${slug}.webm
+          onload: () => {
+            onLoad?.(slug);
+            resolve(slug);
+          },
+          onerror: (e) => {
+            onError?.(e);
+            reject(slug);
+          },
+        }).toDestination();
+        player.fadeIn = TONE_FADE_IN;
+        player.fadeOut = TONE_FADE_OUT;
+        player.volume.value = -Infinity;
+        const resource = {
+          ...sound,
+          object: player,
+        };
+        addAudioResource(slug, resource);
+        onCreated?.(getAudioResource(slug));
+      } catch (e) {
+        console.error('HERE');
+      }
     });
   };
 
@@ -258,12 +268,17 @@ export const AudioServiceBuilder = () => {
     if (audioResourceExists(sound.slug)) {
       return;
     }
-    switch (sound.kind) {
-      case 'howl':
-        return await createHowlerAudioResource(sound, book);
-      case 'toneplayer':
-        // TODO: here do something for groups player... should go with Players I guess?
-        return await createToneAudioResource(sound, book);
+    try {
+      switch (sound.kind) {
+        case 'howl':
+          return await createHowlerAudioResource(sound, book);
+        case 'toneplayer':
+          // TODO: here do something for groups player... should go with Players I guess?
+          return await createToneAudioResource(sound, book);
+      }
+    } catch (slug) {
+      console.error(`Error: ${slug} has not been loaded!`);
+      return null;
     }
   };
 

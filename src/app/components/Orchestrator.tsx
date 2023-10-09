@@ -14,7 +14,7 @@ import SoundLines from 'ballast/app/components/SoundLines';
 import { isMobile } from 'ballast/utils/isMobile';
 
 const SAFE_SOUNDLINES_ACTIVATION = 500;
-const MAX_CHUNKS_TO_LOAD = 8;
+const MAX_CHUNKS_TO_LOAD = 15;
 
 async function wait(milliseconds: number) {
   return new Promise((resolve) => {
@@ -26,29 +26,31 @@ const triggerAudioContextStatus =
   (ES: EventServiceInstance, running: boolean) => () =>
     ES.trigger('audiocontext-status', { running });
 
-const createSounds = (AS: AudioServiceInstance, bookSlug: string) => (chunk: Chunk) => {
-  AS.createAudioResources(
-    chunk.sounds,
-    bookSlug,
-    () => {
-      console.log('💿 all sounds loaded');
-      // trigger
-      chunk.loadingStatus.sounds = LoadingStatus.LOADED;
-      if (chunk.loadingStatus.image === LoadingStatus.LOADED) {
-        console.log('THIS CHUNK IS FULLY LOADED', chunk);
+const createSounds =
+  (AS: AudioServiceInstance, bookSlug: string) => (chunk: Chunk) => {
+    AS.createAudioResources(
+      chunk.sounds,
+      bookSlug,
+      () => {
+        console.log('💿 all sounds loaded');
+        // trigger
+        chunk.loadingStatus.sounds = LoadingStatus.LOADED;
+        if (chunk.loadingStatus.image === LoadingStatus.LOADED) {
+          console.log('THIS CHUNK IS FULLY LOADED', chunk);
+        }
+      },
+      {
+        onLoad: (sound) => console.log('💿 loaded', sound),
       }
-    },
-    {
-      onLoad: (sound) => console.log('💿 loaded', sound),
-    }
-  );
-};
+    );
+  };
 
-const createImage = (ES: EventServiceInstance, bookSlug: string) => (image: string) => {
-  ES.trigger('new-chunk-image', {
-    image: `/images/${bookSlug}/${image}`,
-  });
-};
+const createImage =
+  (ES: EventServiceInstance, bookSlug: string) => (image: string) => {
+    ES.trigger('new-chunk-image', {
+      image: `/images/${bookSlug}/${image}`,
+    });
+  };
 
 const dynamicChunksImport = async (book: string) => {
   try {
@@ -105,12 +107,15 @@ export default function Orchestrator() {
         console.error('Failed loading chunks');
         return;
       }
-      importedChunks.forEach((chunk) => chunksMap.current.set(chunk.id, {
-        ...chunk,
-        loadingStatus: {
-          image: LoadingStatus.INIT,
-          sounds: LoadingStatus.INIT,
-        }}));
+      importedChunks.forEach((chunk) =>
+        chunksMap.current.set(chunk.id, {
+          ...chunk,
+          loadingStatus: {
+            image: LoadingStatus.INIT,
+            sounds: LoadingStatus.INIT,
+          },
+        })
+      );
       console.log('🗺️', chunksMap.current.entries());
       // chapterCursor.current = parseInt(chapter, 10);
     });
@@ -131,7 +136,10 @@ export default function Orchestrator() {
 
       const selectChunks = (cursor: number, quantity: number) => {
         if (chunksMap.current) {
-          return Array.from(chunksMap.current.values()).slice(cursor, cursor + quantity);
+          return Array.from(chunksMap.current.values()).slice(
+            cursor,
+            cursor + quantity
+          );
         }
         return [];
       };

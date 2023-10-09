@@ -40,6 +40,7 @@ export type AudioResourceEventHandlers = {
   onStop?: (...args: any) => void;
   onEnded?: (...args: any) => void;
   onMuted?: (...args: any) => void;
+  onError?: (...args: any) => void;
 };
 
 export type AudioServiceInstance = ReturnType<typeof AudioServiceBuilder>;
