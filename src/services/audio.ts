@@ -227,10 +227,11 @@ export const AudioServiceBuilder = () => {
     book: string
   ) => {
     return new Promise((resolve, reject) => {
-      const { slug, onCreated, onLoad, onError } = sound;
+      const { slug, loop, onCreated, onLoad, onError } = sound;
       try {
         const player = new Tone.Player({
           url: `/sounds/${book}/${slug}.mp3`, // TODO: ${slug}.webm
+          loop,
           onload: () => {
             onLoad?.(slug);
             resolve(slug);

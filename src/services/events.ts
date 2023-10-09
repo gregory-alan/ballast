@@ -1,6 +1,16 @@
+'use client';
+
 import { Events } from 'ballast/types/services/Events';
 
 export const EventServiceBuilder = () => {
+  if (typeof document === 'undefined') {
+    const noop = () => {};
+    return {
+      listen: noop,
+      trigger: noop,
+    }
+  }
+
   const body = document.querySelector('body');
 
   const listen = <T>(

@@ -17,14 +17,13 @@ export default function Reader({
   params: { book: string; chapter: string };
 }) {
   const [isFirstChunkLoaded, setFirstChunkLoaded] = useState<boolean>(true);
-  const EventService = useRef<EventServiceInstance | null>(null);
+  const EventService = useRef<EventServiceInstance>(EventServiceBuilder());
   let { book, chapter } = useContext(ReaderContext);
 
   const searchParams = useSearchParams();
   const showSoundLines = searchParams.get('soundlines') === 'true';
 
   useEffect(() => {
-    EventService.current = EventServiceBuilder();
     EventService.current.trigger('page-params', {
       book: params.book,
       chapter: params.chapter,

@@ -10,4 +10,6 @@ export type Events =
   | 'kill-audio'
   | 'new-chunk-image'
   | 'image-loaded'
+  | 'sounds-loaded'
+  | 'chunk-end'
   | 'load-next-chunks';

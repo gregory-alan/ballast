@@ -15,6 +15,7 @@ export enum LoadingStatus {
   'INIT',
   'LOADING',
   'LOADED',
+  'ERROR',
 };
 
 export type SoundKind = 'howl' | 'toneplayer';
