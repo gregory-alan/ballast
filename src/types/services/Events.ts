@@ -4,12 +4,14 @@ export type EventServiceInstance = ReturnType<typeof EventServiceBuilder>;
 
 export type Events =
   | 'audiocontext-status'
-  | 'page-params'
-  | 'mute-audio'
-  | 'activate-soundlines'
-  | 'kill-audio'
-  | 'new-chunk-image'
-  | 'image-loaded'
-  | 'sounds-loaded'
   | 'chunk-end'
-  | 'load-next-chunks';
+  | 'image-loaded'
+  | 'kill-audio'
+  | 'load-next-chunks'
+  | 'mute-audio'
+  | 'new-chunk'
+  | 'page-params'
+  | 'soundline-enter'
+  | 'soundline-exit'
+  | 'sounds-loaded'
+  | 'start-audiocontext';

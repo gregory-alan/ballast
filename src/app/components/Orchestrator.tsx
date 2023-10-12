@@ -4,18 +4,19 @@ import {
   AudioServiceInstance,
   SoundAction,
 } from 'ballast/types/services/Audio';
-import { Chunks, Sound, LoadingStatus, Chunk } from 'ballast/types/data/Chunks';
-import flatten from 'lodash.flatten';
+import { Chunks, LoadingStatus, Chunk } from 'ballast/types/data/Chunks';
 
 import { EventServiceBuilder } from 'ballast/services/events';
 import { EventServiceInstance } from 'ballast/types/services/Events';
 
-import SoundLines from 'ballast/app/components/SoundLines';
 import { isMobile } from 'ballast/utils/isMobile';
 
 const SAFE_SOUNDLINES_ACTIVATION = 500;
 const MAX_CHUNKS_TO_LOAD = 1;
 
+/**
+ * 🦾 HELPERS
+ */
 async function wait(milliseconds: number) {
   return new Promise((resolve) => {
     setTimeout(resolve, milliseconds);
@@ -50,12 +51,12 @@ const createSounds =
     );
   };
 
-const createImage =
-  (ES: EventServiceInstance, bookSlug: string) =>
-  (image: string, chunkId: string) => {
-    ES.trigger('new-chunk-image', {
-      image: `/images/${bookSlug}/${image}`,
-      chunkId,
+const createChunk =
+  (ES: EventServiceInstance, bookSlug: string) => (chunk: Chunk) => {
+    ES.trigger('new-chunk', {
+      image: `/images/${bookSlug}/${chunk.image}`,
+      chunkId: chunk.id,
+      sounds: chunk.sounds,
     });
   };
 
@@ -78,12 +79,9 @@ const dynamicChunksImport = async (book: string) => {
  */
 export default function Orchestrator() {
   const [bookSlug, setBookSlug] = useState<string>();
-  const [soundLinesActivated, activateSoundLines] = useState<boolean>(false);
   const chunksMap = useRef<Map<string, Chunk>>(new Map());
   const AudioService = useRef<AudioServiceInstance | null>(null);
   const EventService = useRef<EventServiceInstance>(EventServiceBuilder());
-  const chunkCursor = useRef<number>(0);
-  // const chapterCursor = useRef<number>(0);
 
   // 🪝: AudioService initialization
   useEffect(() => {
@@ -110,7 +108,7 @@ export default function Orchestrator() {
               loadingStatus.sounds === LoadingStatus.INIT
           )
           .slice(0, MAX_CHUNKS_TO_LOAD);
-          // .slice(0, MAX_CHUNKS_TO_LOAD - chunksStillLoading.length);
+        // .slice(0, MAX_CHUNKS_TO_LOAD - chunksStillLoading.length);
         console.log({ chunks, chunksStillLoading, nextChunksToLoad });
         EventService.current.trigger('load-next-chunks', {
           chunks: nextChunksToLoad,
@@ -204,7 +202,7 @@ export default function Orchestrator() {
               }
             )(chunk);
           }
-          createImage(EventService.current, bookSlug)(chunk.image, chunk.id);
+          createChunk(EventService.current, bookSlug)(chunk);
           chunksMap.current.set(chunk.id, {
             ...chunk,
             loadingStatus: {
@@ -239,22 +237,57 @@ export default function Orchestrator() {
     );
   }, []);
 
-  // 🪝: Activate SoundLines event
+  // 🪝: Start AudioContext
   useEffect(() => {
-    EventService.current.listen<{ activate: boolean }>(
-      'activate-soundlines',
-      ({ activate }) => {
-        if (activate) {
-          AudioService.current?.startAudioContext(
-            () =>
-              setTimeout(
-                () => activateSoundLines(activate),
-                SAFE_SOUNDLINES_ACTIVATION
-              ),
-            () => console.warn('context coudnt be activated')
-          );
+    EventService.current.listen('start-audiocontext', () =>
+      AudioService.current?.startAudioContext(console.log, console.log)
+    );
+  }, []);
+
+  // 🪝: Soundline entering viewport
+  useEffect(() => {
+    EventService.current.listen<{ slug: string; action: SoundAction }>(
+      'soundline-enter',
+      ({ slug, action }) => {
+        switch (action) {
+          case SoundAction.HOWL_IN:
+            AudioService.current?.setAudioResourceViewState(slug, true);
+            AudioService.current?.muteAudioResource(slug, false);
+            AudioService.current?.playAudioResource(slug);
+            break;
+          case SoundAction.TONEPLAYER_GHOST_IN:
+            AudioService.current?.setAudioResourceViewState(slug, false);
+            AudioService.current?.playAudioResource(slug);
+            break;
+          case SoundAction.TONEPLAYER_IN:
+            AudioService.current?.setAudioResourceViewState(slug, true);
+            AudioService.current?.muteAudioResource(slug, false);
+            break;
         }
-        activateSoundLines(activate);
+      }
+    );
+  }, []);
+
+  // 🪝: Soundline exiting viewport
+  useEffect(() => {
+    EventService.current.listen<{ slug: string; action: SoundAction }>(
+      'soundline-exit',
+      ({ slug, action }) => {
+        switch (action) {
+          case SoundAction.HOWL_OUT:
+            AudioService.current?.setAudioResourceViewState(slug, false);
+            AudioService.current?.muteAudioResource(slug, true);
+            AudioService.current?.stopAudioResource(slug);
+            break;
+          case SoundAction.TONEPLAYER_GHOST_OUT:
+            AudioService.current?.setAudioResourceViewState(slug, false);
+            AudioService.current?.stopAudioResource(slug);
+            break;
+          case SoundAction.TONEPLAYER_OUT:
+            AudioService.current?.setAudioResourceViewState(slug, false);
+            AudioService.current?.muteAudioResource(slug, true);
+            break;
+        }
       }
     );
   }, []);
@@ -300,53 +333,5 @@ export default function Orchestrator() {
     );
   };
 
-  return (
-    soundLinesActivated && (
-      <>
-        <SoundLines
-          sounds={flatten(
-            Array.from(chunksMap.current.values()).map((chunk) => chunk.sounds)
-          )}
-          isVisible={true}
-          onClick={(slug) => AudioService.current?.debugAudioResource(slug)}
-          onEnter={(action: SoundAction, slug: string) => {
-            debug({ slug, action });
-            switch (action) {
-              case SoundAction.HOWL_IN:
-                AudioService.current?.setAudioResourceViewState(slug, true);
-                AudioService.current?.muteAudioResource(slug, false);
-                AudioService.current?.playAudioResource(slug);
-                break;
-              case SoundAction.TONEPLAYER_GHOST_IN:
-                AudioService.current?.setAudioResourceViewState(slug, false);
-                AudioService.current?.playAudioResource(slug);
-                break;
-              case SoundAction.TONEPLAYER_IN:
-                AudioService.current?.setAudioResourceViewState(slug, true);
-                AudioService.current?.muteAudioResource(slug, false);
-                break;
-            }
-          }}
-          onExit={(action: SoundAction, slug: string) => {
-            debug({ slug, action });
-            switch (action) {
-              case SoundAction.HOWL_OUT:
-                AudioService.current?.setAudioResourceViewState(slug, false);
-                AudioService.current?.muteAudioResource(slug, true);
-                AudioService.current?.stopAudioResource(slug);
-                break;
-              case SoundAction.TONEPLAYER_GHOST_OUT:
-                AudioService.current?.setAudioResourceViewState(slug, false);
-                AudioService.current?.stopAudioResource(slug);
-                break;
-              case SoundAction.TONEPLAYER_OUT:
-                AudioService.current?.setAudioResourceViewState(slug, false);
-                AudioService.current?.muteAudioResource(slug, true);
-                break;
-            }
-          }}
-        />
-      </>
-    )
-  );
+  return null;
 }

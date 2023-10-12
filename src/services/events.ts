@@ -8,23 +8,20 @@ export const EventServiceBuilder = () => {
     return {
       listen: noop,
       trigger: noop,
-    }
+    };
   }
 
   const body = document.querySelector('body');
 
-  const listen = <T>(
-    eventName: Events,
-    listener: (data: T) => void
-  ) => {
+  const listen = <T>(eventName: Events, listener: (data: T) => void) => {
     body?.addEventListener(eventName, (event) => {
       const { detail: data } = event as CustomEvent<T>;
       listener(data);
     });
   };
 
-  const trigger = <T>(eventName: Events, data: T) => {
-    const event = new CustomEvent(eventName, { detail: data });
+  const trigger = <T>(eventName: Events, data?: T) => {
+    const event = new CustomEvent(eventName, { detail: data || {} });
     body?.dispatchEvent(event);
   };
 

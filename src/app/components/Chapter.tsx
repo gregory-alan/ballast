@@ -8,11 +8,33 @@ import Modal from 'ballast/app/components/Modal';
 import Button from 'ballast/app/components/Button';
 import LinkButton from 'ballast/app/components/LinkButton';
 import ButtonsBar from 'ballast/app/components/ButtonsBar';
+import SoundLines from 'ballast/app/components/SoundLines';
 
 import { EventServiceBuilder } from 'ballast/services/events';
 import { EventServiceInstance } from 'ballast/types/services/Events';
+import { Sound, SoundAction } from 'ballast/types/services/Audio';
+import flatten from 'lodash.flatten';
 
 const HIDE_DURATION = 100;
+
+const debug = ({ slug, action }: { slug: string; action: number }) => {
+  const actions = [
+    'HOWL_IN',
+    'HOWL_OUT',
+    'TONEPLAYER_GHOST_IN',
+    'TONEPLAYER_IN',
+    'TONEPLAYER_OUT',
+    'TONEPLAYER_GHOST_OUT',
+  ];
+  const actionLabel = actions[action];
+  console.log(
+    `[${
+      actionLabel.indexOf('_IN') !== -1 ? '🌕' : '🌑'
+    } %c${actionLabel}%c] ${slug}`,
+    'color: cyan; font-weight: bold',
+    'color: white; font-weight: bold'
+  );
+};
 
 const LoadingTrigger = ({
   EventService,
@@ -57,15 +79,19 @@ const LoadingTrigger = ({
 };
 
 const Chunk = ({
-  image,
   id,
+  image,
+  sounds,
   nextChapterPath,
   onNextChapter,
+  soundLinesVisible,
 }: {
-  image: string;
   id: string;
+  sounds: Sound[];
+  image: string;
   nextChapterPath?: string;
   onNextChapter: () => void;
+  soundLinesVisible: boolean;
 }) => {
   const EventService = useRef<EventServiceInstance>(EventServiceBuilder());
   const [fullyLoaded, setFullyLoaded] = useState<boolean>(false);
@@ -125,6 +151,19 @@ const Chunk = ({
           width={50}
         />
       )}
+      {fullyLoaded && soundLinesVisible && <SoundLines
+        sounds={flatten(sounds)}
+        isVisible={true}
+        onClick={() => console.log('click')}
+        onEnter={(action: SoundAction, slug: string) => {
+          debug({ slug, action });
+          EventService.current.trigger('soundline-enter', { action, slug });
+        }}
+        onExit={(action: SoundAction, slug: string) => {
+          debug({ slug, action });
+          EventService.current.trigger('soundline-exit', { action, slug });
+        }}
+      />}
     </div>
   );
 };
@@ -137,21 +176,24 @@ export default function Chapter({
   nextChapterPath?: string;
 }) {
   const EventService = useRef<EventServiceInstance>(EventServiceBuilder());
-  const [chunks, setChunks] = useState<{ chunkId: string; image: string }[]>(
-    []
-  );
+  const [chunks, setChunks] = useState<
+    { chunkId: string; image: string; sounds: Sound[] }[]
+  >([]);
   const [visible, show] = useState<boolean>(false);
   const [modalVisible, showModal] = useState<boolean>(false);
+  const [soundLinesVisible, showSoundLines] = useState<boolean>(false);
   const [audioMuted, muteAudio] = useState<boolean>(true);
   const [isButtonsBarOpen, openButtonsBar] = useState<boolean>(false);
 
   useEffect(() => {
-    EventService.current.listen<{ chunkId: string; image: string }>(
-      'new-chunk-image',
-      ({ image, chunkId }) => {
-        setChunks((images) => [...images, { chunkId, image }]);
-      }
-    );
+    EventService.current.listen<{
+      chunkId: string;
+      image: string;
+      sounds: Sound[];
+    }>('new-chunk', ({ image, chunkId, sounds }) => {
+      console.log(chunkId, image, sounds);
+      setChunks((chunks) => [...chunks, { chunkId, image, sounds }]);
+    });
   }, []);
 
   // Check for Audio muted stored status
@@ -198,12 +240,12 @@ export default function Chapter({
   const buttonsBarClickHandler = () => openButtonsBar(!isButtonsBarOpen);
   const onNextChapter = () => {
     EventService.current = EventServiceBuilder();
-    EventService.current.trigger('activate-soundlines', {
+    EventService.current.trigger('start-audiocontext', {
       activate: false,
     });
     setTimeout(() => {
       EventService.current = EventServiceBuilder();
-      EventService.current.trigger('activate-soundlines', {
+      EventService.current.trigger('start-audiocontext', {
         activate: true,
       });
     }, HIDE_DURATION + 1000);
@@ -211,17 +253,16 @@ export default function Chapter({
 
   const onExit = () => {
     EventService.current = EventServiceBuilder();
-    EventService.current.trigger('kill-audio', {});
+    EventService.current.trigger('kill-audio');
   };
 
   const modalClickHandler = () => {
     EventService.current = EventServiceBuilder();
-    EventService.current.trigger('activate-soundlines', {
-      activate: true,
-    });
+    EventService.current.trigger('start-audiocontext');
     muteAudio(false);
     sessionStorage.setItem('muted', 'no');
     setTimeout(() => showModal(false), 200);
+    showSoundLines(true);
     openButtonsBar(true);
   };
 
@@ -241,13 +282,15 @@ export default function Chapter({
     >
       <div className="flex-1 relative">
         {/* CHUNKS */}
-        {chunks.map(({ image, chunkId }, i) => (
+        {chunks.map(({ image, sounds, chunkId }, i) => (
           <Chunk
             key={i}
             id={chunkId}
             image={image}
+            sounds={sounds}
             onNextChapter={onNextChapter}
             nextChapterPath={''}
+            soundLinesVisible={soundLinesVisible}
           />
         ))}
         {/* UI */}
