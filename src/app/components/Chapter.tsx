@@ -71,13 +71,14 @@ const LoadingTrigger = ({
         height: '5vh',
         bottom: '0',
         zIndex: 100,
-        backgroundColor: 'steelblue',
+        backgroundColor: 'transparent',
       }}
     ></div>
   );
 };
 
 const Chunk = ({
+  currentChapter,
   endLink,
   id,
   image,
@@ -85,6 +86,7 @@ const Chunk = ({
   soundLinesVisible,
   sounds,
 }: {
+  currentChapter: number;
   endLink?: string;
   id: string;
   image: string;
@@ -96,6 +98,7 @@ const Chunk = ({
   const [imageLoaded, setImageLoaded] = useState<boolean>(false);
   const [soundsLoaded, setSoundsLoaded] = useState<boolean>(false);
   const EventService = useRef<EventServiceInstance>(EventServiceBuilder());
+  const hideChunk = parseInt(id.split('.')[0], 10) !== currentChapter;
 
   useEffect(() => {
     EventService.current.listen<{ chunkId: string }>(
@@ -115,19 +118,14 @@ const Chunk = ({
 
   return (
     <div style={{ position: 'relative' }}>
-      {!imageLoaded && (
-        <Image
-          className="relative"
-          src={`/images/loading.svg`}
-          alt="Chargement"
-          width={200}
-          height={1}
-        />
-      )}
+      {/* Image visible only when fully loaded (i.e image + sounds) */}
       <Image
         key={image}
         className="relative"
-        style={{ visibility: fullyLoaded ? 'visible' : 'hidden' }}
+        style={{
+          visibility: fullyLoaded ? 'visible' : 'hidden',
+          display: hideChunk ? 'none' : 'block',
+        }}
         onLoadingComplete={() => {
           setImageLoaded(true);
           EventService.current = EventServiceBuilder();
@@ -139,8 +137,22 @@ const Chunk = ({
         height={1}
         priority
       />
-      <LoadingTrigger EventService={EventService.current} chunkId={id} />
-      {endLink && fullyLoaded && (
+      {/* Loader, visible till everything is loaded */}
+      {!hideChunk && !fullyLoaded && (
+        <Image
+          className="relative"
+          src={`/images/loading.svg`}
+          alt="Chargement"
+          width={200}
+          height={1}
+        />
+      )}
+      {/* New chunk loading trigger */}
+      {!hideChunk && (
+        <LoadingTrigger EventService={EventService.current} chunkId={id} />
+      )}
+      {/* Next Chapter button */}
+      {!hideChunk && endLink && fullyLoaded && (
         <LinkButton
           text="Chapitre Suivant"
           href={endLink}
@@ -149,7 +161,8 @@ const Chunk = ({
           width={50}
         />
       )}
-      {fullyLoaded && soundLinesVisible && (
+      {/* Soundlines */}
+      {!hideChunk && fullyLoaded && soundLinesVisible && (
         <SoundLines
           sounds={flatten(sounds)}
           isVisible={true}
@@ -168,10 +181,16 @@ const Chunk = ({
   );
 };
 
-export default function Chapter({ bookPath }: { bookPath: string }) {
+export default function Chapter({
+  bookPath,
+  chapter,
+}: {
+  bookPath: string;
+  chapter: number;
+}) {
   const EventService = useRef<EventServiceInstance>(EventServiceBuilder());
   const [chunks, setChunks] = useState<
-    { chunkId: string; image: string; sounds: Sound[], endLink?: string }[]
+    { chunkId: string; image: string; sounds: Sound[]; endLink?: string }[]
   >([]);
   const [visible, show] = useState<boolean>(false);
   const [modalVisible, showModal] = useState<boolean>(false);
@@ -279,6 +298,7 @@ export default function Chapter({ bookPath }: { bookPath: string }) {
         {chunks.map(({ image, sounds, chunkId, endLink }, i) => (
           <Chunk
             key={i}
+            currentChapter={chapter}
             id={chunkId}
             image={image}
             sounds={sounds}

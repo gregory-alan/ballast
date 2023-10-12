@@ -34,7 +34,9 @@ export default function Reader({
   return (
     <>
       <Loading isVisible={!isFirstChunkLoaded} />
-      {isFirstChunkLoaded && <Chapter bookPath={`/${book}`} />}
+      {isFirstChunkLoaded && (
+        <Chapter bookPath={`/${book}`} chapter={chapter} />
+      )}
     </>
   );
 }
