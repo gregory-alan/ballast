@@ -9,6 +9,7 @@ export type Chunk = {
     image:  LoadingStatus;
     sounds: LoadingStatus;
   };
+  endLink?: string;
 }
 
 export enum LoadingStatus {

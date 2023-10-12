@@ -50,7 +50,6 @@ const LoadingTrigger = ({
 
   const debounced = useDebouncedCallback((inView: boolean) => {
     if (inView) {
-      console.log('I am in View');
       if (!hasTriggeredOnce) {
         EventService.trigger('chunk-end', { chunkId });
         setTriggering(true);
@@ -79,24 +78,24 @@ const LoadingTrigger = ({
 };
 
 const Chunk = ({
+  endLink,
   id,
   image,
-  sounds,
-  nextChapterPath,
   onNextChapter,
   soundLinesVisible,
+  sounds,
 }: {
+  endLink?: string;
   id: string;
-  sounds: Sound[];
   image: string;
-  nextChapterPath?: string;
   onNextChapter: () => void;
   soundLinesVisible: boolean;
+  sounds: Sound[];
 }) => {
-  const EventService = useRef<EventServiceInstance>(EventServiceBuilder());
   const [fullyLoaded, setFullyLoaded] = useState<boolean>(false);
   const [imageLoaded, setImageLoaded] = useState<boolean>(false);
   const [soundsLoaded, setSoundsLoaded] = useState<boolean>(false);
+  const EventService = useRef<EventServiceInstance>(EventServiceBuilder());
 
   useEffect(() => {
     EventService.current.listen<{ chunkId: string }>(
@@ -130,7 +129,6 @@ const Chunk = ({
         className="relative"
         style={{ visibility: fullyLoaded ? 'visible' : 'hidden' }}
         onLoadingComplete={() => {
-          // console.log('🎇 image loaded', image);
           setImageLoaded(true);
           EventService.current = EventServiceBuilder();
           EventService.current?.trigger('image-loaded', { image, chunkId: id });
@@ -142,42 +140,38 @@ const Chunk = ({
         priority
       />
       <LoadingTrigger EventService={EventService.current} chunkId={id} />
-      {nextChapterPath && fullyLoaded && (
+      {endLink && fullyLoaded && (
         <LinkButton
           text="Chapitre Suivant"
-          href={nextChapterPath}
+          href={endLink}
           onClick={onNextChapter}
-          top={408}
+          bottom={30}
           width={50}
         />
       )}
-      {fullyLoaded && soundLinesVisible && <SoundLines
-        sounds={flatten(sounds)}
-        isVisible={true}
-        onClick={() => console.log('click')}
-        onEnter={(action: SoundAction, slug: string) => {
-          debug({ slug, action });
-          EventService.current.trigger('soundline-enter', { action, slug });
-        }}
-        onExit={(action: SoundAction, slug: string) => {
-          debug({ slug, action });
-          EventService.current.trigger('soundline-exit', { action, slug });
-        }}
-      />}
+      {fullyLoaded && soundLinesVisible && (
+        <SoundLines
+          sounds={flatten(sounds)}
+          isVisible={true}
+          onClick={() => console.log('click')}
+          onEnter={(action: SoundAction, slug: string) => {
+            debug({ slug, action });
+            EventService.current.trigger('soundline-enter', { action, slug });
+          }}
+          onExit={(action: SoundAction, slug: string) => {
+            debug({ slug, action });
+            EventService.current.trigger('soundline-exit', { action, slug });
+          }}
+        />
+      )}
     </div>
   );
 };
 
-export default function Chapter({
-  bookPath,
-  nextChapterPath,
-}: {
-  bookPath: string;
-  nextChapterPath?: string;
-}) {
+export default function Chapter({ bookPath }: { bookPath: string }) {
   const EventService = useRef<EventServiceInstance>(EventServiceBuilder());
   const [chunks, setChunks] = useState<
-    { chunkId: string; image: string; sounds: Sound[] }[]
+    { chunkId: string; image: string; sounds: Sound[], endLink?: string }[]
   >([]);
   const [visible, show] = useState<boolean>(false);
   const [modalVisible, showModal] = useState<boolean>(false);
@@ -190,9 +184,9 @@ export default function Chapter({
       chunkId: string;
       image: string;
       sounds: Sound[];
-    }>('new-chunk', ({ image, chunkId, sounds }) => {
-      console.log(chunkId, image, sounds);
-      setChunks((chunks) => [...chunks, { chunkId, image, sounds }]);
+      endLink?: string;
+    }>('new-chunk', ({ image, chunkId, sounds, endLink }) => {
+      setChunks((chunks) => [...chunks, { chunkId, image, sounds, endLink }]);
     });
   }, []);
 
@@ -282,14 +276,14 @@ export default function Chapter({
     >
       <div className="flex-1 relative">
         {/* CHUNKS */}
-        {chunks.map(({ image, sounds, chunkId }, i) => (
+        {chunks.map(({ image, sounds, chunkId, endLink }, i) => (
           <Chunk
             key={i}
             id={chunkId}
             image={image}
             sounds={sounds}
             onNextChapter={onNextChapter}
-            nextChapterPath={''}
+            endLink={endLink}
             soundLinesVisible={soundLinesVisible}
           />
         ))}

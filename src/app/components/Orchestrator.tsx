@@ -57,6 +57,7 @@ const createChunk =
       image: `/images/${bookSlug}/${chunk.image}`,
       chunkId: chunk.id,
       sounds: chunk.sounds,
+      endLink: chunk.endLink,
     });
   };
 

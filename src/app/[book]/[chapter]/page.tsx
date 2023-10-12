@@ -33,13 +33,8 @@ export default function Reader({
 
   return (
     <>
-      <Loading isVisible={!isFirstChunkLoaded} /> 
-      {isFirstChunkLoaded && (
-        <Chapter
-          bookPath={`/${book}`}
-          nextChapterPath={`/${book}/${chapter + 1}`} // TEMP
-        />
-      )}
+      <Loading isVisible={!isFirstChunkLoaded} />
+      {isFirstChunkLoaded && <Chapter bookPath={`/${book}`} />}
     </>
   );
 }
