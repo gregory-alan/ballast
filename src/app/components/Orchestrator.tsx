@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import compact from 'lodash.compact';
 
 import { AudioServiceBuilder } from 'ballast/services/audio';
 import {
@@ -12,9 +11,6 @@ import { EventServiceBuilder } from 'ballast/services/events';
 import { EventServiceInstance } from 'ballast/types/services/Events';
 
 import { isMobile } from 'ballast/utils/isMobile';
-
-const SAFE_SOUNDLINES_ACTIVATION = 500;
-const MAX_CHUNKS_TO_LOAD = 1;
 
 /**
  * 🦾 HELPERS

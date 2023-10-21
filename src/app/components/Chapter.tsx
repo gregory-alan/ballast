@@ -75,10 +75,10 @@ const LoadingTrigger = ({
       style={{
         position: 'absolute',
         width: '100%',
-        height: '5vh',
-        bottom: '0',
+        height: '10vh',
+        bottom: '50%',
         zIndex: 100,
-        backgroundColor: 'transparent',
+        backgroundColor: 'steelblue',
       }}
     ></div>
   );
@@ -145,18 +145,8 @@ const ChapterChunk = ({
         height={1}
         priority
       />
-      {/* Loader, visible till everything is loaded */}
-      {!hideChunk && !fullyLoaded && (
-        <Image
-          className="relative"
-          src={`/images/loading.svg`}
-          alt="Chargement"
-          width={200}
-          height={1}
-        />
-      )}
       {/* New chunk loading trigger */}
-      {!hideChunk && (
+      {!hideChunk && fullyLoaded && (
         <LoadingTrigger EventService={EventService.current} chunk={chunk} />
       )}
       {/* Next Chapter button */}
