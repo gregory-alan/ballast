@@ -78,7 +78,7 @@ const LoadingTrigger = ({
         height: '10vh',
         bottom: '50%',
         zIndex: 100,
-        backgroundColor: 'steelblue',
+        backgroundColor: 'transparent',
       }}
     ></div>
   );
@@ -91,10 +91,12 @@ const ChapterChunk = ({
   currentChapter,
   onNextChapter,
   chunk,
+  soundLinesVisible,
 }: {
   currentChapter: number;
   chunk: Chunk;
   onNextChapter: () => void;
+  soundLinesVisible: boolean;
 }) => {
   const [fullyLoaded, setFullyLoaded] = useState<boolean>(false);
   const [imageLoaded, setImageLoaded] = useState<boolean>(false);
@@ -163,7 +165,7 @@ const ChapterChunk = ({
       {!hideChunk && fullyLoaded && (
         <SoundLines
           sounds={flatten(chunk.sounds)}
-          isVisible={true}
+          isVisible={soundLinesVisible}
           onClick={() => console.log('click')}
           onEnter={(action: SoundAction, slug: string) => {
             debug({ slug, action });
@@ -194,6 +196,7 @@ export default function Chapter({
   );
   const [chunks, setChunks] = useState<Chunk[]>([]);
   const [visible, show] = useState<boolean>(false);
+  const [soundLinesVisible, setSoundLinesVisible] = useState<boolean>(false);
   const [modalVisible, showModal] = useState<boolean>(false);
   const [audioMuted, muteAudio] = useState<boolean>(true);
   const [isButtonsBarOpen, openButtonsBar] = useState<boolean>(false);
@@ -201,8 +204,10 @@ export default function Chapter({
   useEffect(() => {
     EventService.current.listen<{
       newChunk: Chunk;
-    }>('new-chunk', ({ newChunk }) => {
+      soundsLineDebug: boolean;
+    }>('new-chunk', ({ newChunk, soundsLineDebug }) => {
       setChunks((chunks) => [...chunks, newChunk]);
+      setSoundLinesVisible(soundsLineDebug);
     });
   }, []);
 
@@ -292,6 +297,7 @@ export default function Chapter({
             currentChapter={chapter}
             chunk={chunk}
             onNextChapter={onNextChapter}
+            soundLinesVisible={soundLinesVisible}
           />
         ))}
         {/* UI */}

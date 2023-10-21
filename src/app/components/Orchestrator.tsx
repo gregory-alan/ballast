@@ -48,12 +48,14 @@ const createSounds =
   };
 
 const createChunk =
-  (ES: EventServiceInstance, bookSlug: string) => (chunk: Chunk) => {
+  (ES: EventServiceInstance, bookSlug: string) =>
+  (chunk: Chunk, soundLinesVisible: boolean) => {
     ES.trigger('new-chunk', {
       newChunk: {
         ...chunk,
         image: `/images/${bookSlug}/${chunk.image}`,
       },
+      soundsLineDebug: soundLinesVisible,
     });
   };
 
@@ -76,6 +78,7 @@ const dynamicChunksImport = async (book: string) => {
  */
 export default function Orchestrator() {
   const [bookSlug, setBookSlug] = useState<string>();
+  const [soundLinesVisible, setSoundLinesVisible] = useState<boolean>(false);
   const [currentChapter, setCurrentChapter] = useState<number>(0);
   const chunksMap = useRef<Map<string, Chunk>>(new Map());
   const Chunks = useRef<Chunks>();
@@ -111,7 +114,7 @@ export default function Orchestrator() {
               }
             }
           )(chunk);
-          createChunk(EventService.current, bookSlug)(chunk);
+          createChunk(EventService.current, bookSlug)(chunk, soundLinesVisible);
           chunksMap.current.set(chunk.id, {
             ...chunk,
             loadingStatus: {
@@ -147,7 +150,7 @@ export default function Orchestrator() {
           });
           break;
         case 'image':
-          createChunk(EventService.current, bookSlug)(chunk);
+          createChunk(EventService.current, bookSlug)(chunk, soundLinesVisible);
           chunksMap.current.set(chunk.id, {
             ...chunk,
             loadingStatus: {
@@ -158,7 +161,7 @@ export default function Orchestrator() {
           break;
       }
     },
-    [bookSlug]
+    [bookSlug, soundLinesVisible]
   );
 
   // 🪝: AudioService initialization
@@ -198,6 +201,7 @@ export default function Orchestrator() {
       console.log('params: ', { book, chapter });
       setBookSlug(book);
       setCurrentChapter(parseInt(chapter, 10));
+      setSoundLinesVisible(showSoundLines);
     });
   }, []);
 
