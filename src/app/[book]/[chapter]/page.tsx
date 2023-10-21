@@ -11,13 +11,9 @@ import Loading from 'ballast/app/components/Loading';
 
 import { ReaderContext } from 'ballast/contexts/ReaderContext';
 
-export default function Reader({
-  params,
-}: {
-  params: { book: string; chapter: string };
-}) {
+export default function Reader() {
   const [isFirstChunkLoaded, setFirstChunkLoaded] = useState<boolean>(true);
-  const EventService = useRef<EventServiceInstance>(EventServiceBuilder());
+  const EventService = useRef<EventServiceInstance>(EventServiceBuilder('Page'));
   let { book, chapter } = useContext(ReaderContext);
 
   const searchParams = useSearchParams();
@@ -25,18 +21,18 @@ export default function Reader({
 
   useEffect(() => {
     EventService.current.trigger('page-params', {
-      book: params.book,
-      chapter: params.chapter,
+      book,
+      chapter,
       showSoundLines,
     });
-  }, [params.book, params.chapter, showSoundLines]);
+  }, [book, chapter, showSoundLines]);
 
   return (
     <>
-      <Loading isVisible={!isFirstChunkLoaded} />
-      {isFirstChunkLoaded && (
+      {/* <Loading isVisible={!isFirstChunkLoaded} />
+      {isFirstChunkLoaded && ( */}
         <Chapter bookPath={`/${book}`} chapter={chapter} />
-      )}
+      {/* )} */}
     </>
   );
 }

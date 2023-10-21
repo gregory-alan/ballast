@@ -2,7 +2,10 @@
 
 import { Events } from 'ballast/types/services/Events';
 
-export const EventServiceBuilder = () => {
+const listeners: { [key: string]: any } = {}; // la flemme
+
+export const EventServiceBuilder = (from?: string) => {
+  // console.log('INSTANCIATED', from);
   if (typeof document === 'undefined') {
     const noop = () => {};
     return {
@@ -10,14 +13,20 @@ export const EventServiceBuilder = () => {
       trigger: noop,
     };
   }
-
   const body = document.querySelector('body');
 
   const listen = <T>(eventName: Events, listener: (data: T) => void) => {
-    body?.addEventListener(eventName, (event) => {
-      const { detail: data } = event as CustomEvent<T>;
+    if (listeners[eventName]) {
+      // console.log('REMOVING', eventName)
+      body?.removeEventListener(eventName, listeners[eventName]);
+    }
+    const fn = (event: CustomEvent<T>) => {
+      const { detail: data } = event;
       listener(data);
-    });
+    };
+
+    body?.addEventListener(eventName, fn as any); // la flemme
+    listeners[eventName] = fn;
   };
 
   const trigger = <T>(eventName: Events, data?: T) => {

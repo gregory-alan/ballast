@@ -7,7 +7,6 @@ export type Events =
   | 'chunk-end'
   | 'image-loaded'
   | 'kill-audio'
-  | 'load-next-chunks'
   | 'mute-audio'
   | 'new-chunk'
   | 'page-params'

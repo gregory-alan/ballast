@@ -14,6 +14,7 @@ import { EventServiceBuilder } from 'ballast/services/events';
 import { EventServiceInstance } from 'ballast/types/services/Events';
 import { Sound, SoundAction } from 'ballast/types/services/Audio';
 import flatten from 'lodash.flatten';
+import { Chunk, LoadingStatus } from 'ballast/types/data/Chunks';
 
 const HIDE_DURATION = 100;
 
@@ -36,12 +37,15 @@ const debug = ({ slug, action }: { slug: string; action: number }) => {
   );
 };
 
+/**
+ * 📦 Invisible Loading Trigger (at the end of each Chunk)
+ */
 const LoadingTrigger = ({
   EventService,
-  chunkId,
+  chunk,
 }: {
   EventService: EventServiceInstance;
-  chunkId: string;
+  chunk: Chunk;
 }) => {
   const [hasTriggeredOnce, setTriggering] = useState<boolean>(false);
   const { ref, inView } = useInView({
@@ -51,7 +55,10 @@ const LoadingTrigger = ({
   const debounced = useDebouncedCallback((inView: boolean) => {
     if (inView) {
       if (!hasTriggeredOnce) {
-        EventService.trigger('chunk-end', { chunkId });
+        EventService.trigger('chunk-end', {
+          chunkId: chunk.id,
+          next: chunk.next,
+        });
         setTriggering(true);
       }
     }
@@ -77,39 +84,38 @@ const LoadingTrigger = ({
   );
 };
 
-const Chunk = ({
+/**
+ * 📦 Chapter's Chunk containing Image and SoundLines (+ loading, links etc.)
+ */
+const ChapterChunk = ({
   currentChapter,
-  endLink,
-  id,
-  image,
   onNextChapter,
-  soundLinesVisible,
-  sounds,
+  chunk,
 }: {
   currentChapter: number;
-  endLink?: string;
-  id: string;
-  image: string;
+  chunk: Chunk;
   onNextChapter: () => void;
-  soundLinesVisible: boolean;
-  sounds: Sound[];
 }) => {
   const [fullyLoaded, setFullyLoaded] = useState<boolean>(false);
   const [imageLoaded, setImageLoaded] = useState<boolean>(false);
-  const [soundsLoaded, setSoundsLoaded] = useState<boolean>(false);
-  const EventService = useRef<EventServiceInstance>(EventServiceBuilder());
-  const hideChunk = parseInt(id.split('.')[0], 10) !== currentChapter;
+  const [soundsLoaded, setSoundsLoaded] = useState<boolean>(
+    chunk.loadingStatus.sounds === LoadingStatus.LOADED
+  );
+  const EventService = useRef<EventServiceInstance>(
+    EventServiceBuilder(`ChapterChunk ${chunk.id}`)
+  );
+  const hideChunk = parseInt(chunk.id.split('.')[0], 10) !== currentChapter;
 
   useEffect(() => {
     EventService.current.listen<{ chunkId: string }>(
       'sounds-loaded',
       ({ chunkId }) => {
-        if (chunkId === id) {
+        if (chunkId === chunk.id) {
           setSoundsLoaded(true);
         }
       }
     );
-  }, [id]);
+  }, [chunk.id]);
 
   useEffect(
     () => setFullyLoaded(imageLoaded && soundsLoaded),
@@ -120,7 +126,7 @@ const Chunk = ({
     <div style={{ position: 'relative' }}>
       {/* Image visible only when fully loaded (i.e image + sounds) */}
       <Image
-        key={image}
+        key={chunk.image}
         className="relative"
         style={{
           visibility: fullyLoaded ? 'visible' : 'hidden',
@@ -128,10 +134,12 @@ const Chunk = ({
         }}
         onLoadingComplete={() => {
           setImageLoaded(true);
-          EventService.current = EventServiceBuilder();
-          EventService.current?.trigger('image-loaded', { image, chunkId: id });
+          EventService.current.trigger('image-loaded', {
+            image: chunk.image,
+            chunkId: chunk.id,
+          });
         }}
-        src={image}
+        src={chunk.image}
         alt="une image"
         width={10000}
         height={1}
@@ -149,22 +157,22 @@ const Chunk = ({
       )}
       {/* New chunk loading trigger */}
       {!hideChunk && (
-        <LoadingTrigger EventService={EventService.current} chunkId={id} />
+        <LoadingTrigger EventService={EventService.current} chunk={chunk} />
       )}
       {/* Next Chapter button */}
-      {!hideChunk && endLink && fullyLoaded && (
+      {!hideChunk && chunk.endLink && fullyLoaded && (
         <LinkButton
           text="Chapitre Suivant"
-          href={endLink}
+          href={chunk.endLink}
           onClick={onNextChapter}
           bottom={30}
           width={50}
         />
       )}
       {/* Soundlines */}
-      {!hideChunk && fullyLoaded && soundLinesVisible && (
+      {!hideChunk && fullyLoaded && (
         <SoundLines
-          sounds={flatten(sounds)}
+          sounds={flatten(chunk.sounds)}
           isVisible={true}
           onClick={() => console.log('click')}
           onEnter={(action: SoundAction, slug: string) => {
@@ -181,6 +189,9 @@ const Chunk = ({
   );
 };
 
+/**
+ * 📦 Chapter
+ */
 export default function Chapter({
   bookPath,
   chapter,
@@ -188,24 +199,20 @@ export default function Chapter({
   bookPath: string;
   chapter: number;
 }) {
-  const EventService = useRef<EventServiceInstance>(EventServiceBuilder());
-  const [chunks, setChunks] = useState<
-    { chunkId: string; image: string; sounds: Sound[]; endLink?: string }[]
-  >([]);
+  const EventService = useRef<EventServiceInstance>(
+    EventServiceBuilder('Chapter')
+  );
+  const [chunks, setChunks] = useState<Chunk[]>([]);
   const [visible, show] = useState<boolean>(false);
   const [modalVisible, showModal] = useState<boolean>(false);
-  const [soundLinesVisible, showSoundLines] = useState<boolean>(false);
   const [audioMuted, muteAudio] = useState<boolean>(true);
   const [isButtonsBarOpen, openButtonsBar] = useState<boolean>(false);
 
   useEffect(() => {
     EventService.current.listen<{
-      chunkId: string;
-      image: string;
-      sounds: Sound[];
-      endLink?: string;
-    }>('new-chunk', ({ image, chunkId, sounds, endLink }) => {
-      setChunks((chunks) => [...chunks, { chunkId, image, sounds, endLink }]);
+      newChunk: Chunk;
+    }>('new-chunk', ({ newChunk }) => {
+      setChunks((chunks) => [...chunks, newChunk]);
     });
   }, []);
 
@@ -222,7 +229,6 @@ export default function Chapter({
 
   // Check audio context and show modal accordingly
   useEffect(() => {
-    EventService.current = EventServiceBuilder();
     EventService.current.listen<{ running: boolean }>(
       'audiocontext-status',
       ({ running }) => {
@@ -237,7 +243,6 @@ export default function Chapter({
 
   // Mute / Unmute Audio
   useEffect(() => {
-    EventService.current = EventServiceBuilder();
     if (!audioMuted && modalVisible) {
       modalClickHandler();
     }
@@ -252,12 +257,10 @@ export default function Chapter({
   /////////////
   const buttonsBarClickHandler = () => openButtonsBar(!isButtonsBarOpen);
   const onNextChapter = () => {
-    EventService.current = EventServiceBuilder();
     EventService.current.trigger('start-audiocontext', {
       activate: false,
     });
     setTimeout(() => {
-      EventService.current = EventServiceBuilder();
       EventService.current.trigger('start-audiocontext', {
         activate: true,
       });
@@ -265,17 +268,15 @@ export default function Chapter({
   };
 
   const onExit = () => {
-    EventService.current = EventServiceBuilder();
     EventService.current.trigger('kill-audio');
   };
 
   const modalClickHandler = () => {
-    EventService.current = EventServiceBuilder();
     EventService.current.trigger('start-audiocontext');
     muteAudio(false);
     sessionStorage.setItem('muted', 'no');
     setTimeout(() => showModal(false), 200);
-    showSoundLines(true);
+    // showSoundLines(true);
     openButtonsBar(true);
   };
 
@@ -295,16 +296,12 @@ export default function Chapter({
     >
       <div className="flex-1 relative">
         {/* CHUNKS */}
-        {chunks.map(({ image, sounds, chunkId, endLink }, i) => (
-          <Chunk
+        {chunks.map((chunk, i) => (
+          <ChapterChunk
             key={i}
             currentChapter={chapter}
-            id={chunkId}
-            image={image}
-            sounds={sounds}
+            chunk={chunk}
             onNextChapter={onNextChapter}
-            endLink={endLink}
-            soundLinesVisible={soundLinesVisible}
           />
         ))}
         {/* UI */}

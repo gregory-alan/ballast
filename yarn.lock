@@ -486,6 +486,13 @@
   resolved "https://registry.yarnpkg.com/@types/json5/-/json5-0.0.29.tgz#ee28707ae94e11d2b827bcbe5270bcea7f3e71ee"
   integrity sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==
 
+"@types/lodash.compact@^3.0.8":
+  version "3.0.8"
+  resolved "https://registry.yarnpkg.com/@types/lodash.compact/-/lodash.compact-3.0.8.tgz#fee93e48152428a859489a84a4fb6d410d4ff69c"
+  integrity sha512-70LIiqc4yazsRV2eq1eLA3xgDPtHYwjMh2bbMV0BW5Q9j9kw3DTS5LnMj3G+Rh4Ek/+f8HghCbt62xkvdILlvw==
+  dependencies:
+    "@types/lodash" "*"
+
 "@types/lodash.flatten@^4.4.7":
   version "4.4.7"
   resolved "https://registry.yarnpkg.com/@types/lodash.flatten/-/lodash.flatten-4.4.7.tgz#0072c8fc0b7e2d0741c118c9bbcb1c1f3602504e"
@@ -1996,6 +2003,11 @@ locate-path@^6.0.0:
   integrity sha512-iPZK6eYjbxRu3uB4/WZ3EsEIMJFMqAoopl3R+zuq0UjcAm/MO6KCweDgPfP3elTztoKP3KtnVHxTn2NHBSDVUw==
   dependencies:
     p-locate "^5.0.0"
+
+lodash.compact@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/lodash.compact/-/lodash.compact-3.0.1.tgz#540ce3837745975807471e16b4a2ba21e7256ca5"
+  integrity sha512-2ozeiPi+5eBXW1CLtzjk8XQFhQOEMwwfxblqeq6EGyTxZJ1bPATqilY0e6g2SLQpP4KuMeuioBhEnWz5Pr7ICQ==
 
 lodash.flatten@^4.4.0:
   version "4.4.0"

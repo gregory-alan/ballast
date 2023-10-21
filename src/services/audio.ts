@@ -417,11 +417,17 @@ export const AudioServiceBuilder = () => {
     }
   };
 
+  /**
+   * This method returns the current AudioContext state
+   */
+  const getAudioContextState = () => Tone.getContext().state;
+
   return {
     createAudioResource,
     createAudioResources,
     debugAudioResource,
     dumpAudioResources,
+    getAudioContextState,
     globalMuteResources,
     muteAudioResource,
     pauseAudioResource,
