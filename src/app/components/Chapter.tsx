@@ -15,8 +15,9 @@ import { EventServiceInstance } from 'ballast/types/services/Events';
 import { Sound, SoundAction } from 'ballast/types/services/Audio';
 import flatten from 'lodash.flatten';
 import { Chunk, LoadingStatus } from 'ballast/types/data/Chunks';
+import { config } from 'ballast/config';
 
-const HIDE_DURATION = 100;
+const HIDE_DURATION = config.splashDuration;
 
 const debug = ({ slug, action }: { slug: string; action: number }) => {
   const actions = [
@@ -187,15 +188,17 @@ const ChapterChunk = ({
 export default function Chapter({
   bookPath,
   chapter,
+  isVisible,
 }: {
   bookPath: string;
   chapter: number;
+  isVisible: boolean;
 }) {
   const EventService = useRef<EventServiceInstance>(
     EventServiceBuilder('Chapter')
   );
   const [chunks, setChunks] = useState<Chunk[]>([]);
-  const [visible, show] = useState<boolean>(false);
+  const [visible, show] = useState<boolean>(isVisible);
   const [soundLinesVisible, setSoundLinesVisible] = useState<boolean>(false);
   const [modalVisible, showModal] = useState<boolean>(false);
   const [audioMuted, muteAudio] = useState<boolean>(true);
@@ -285,6 +288,7 @@ export default function Chapter({
     <main
       className="flex max-w-md"
       style={{
+        display: visible ? 'flex' : 'block',
         opacity: visible ? 1 : 0,
         transition: 'opacity 0.5s linear',
       }}
