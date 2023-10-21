@@ -1,8 +1,8 @@
 export type Infos = {
-  title:    string;
+  title: string;
   chapters: Chapter[];
-}
+};
 
 export type Chapter = {
   id: number;
-}
+};

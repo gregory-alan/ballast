@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "title": "Sound",
+  "title": "OUTDATED, SEE IF USAGE LATER",
   "type": "object",
   "properties": {
     "slug": {
@@ -8,18 +8,11 @@
     },
     "type": {
       "type": "string",
-      "enum": [
-        "fx",
-        "music",
-        "ambient"
-      ]
+      "enum": ["fx", "music", "ambient"]
     },
     "kind": {
       "type": "string",
-      "enum": [
-        "howl",
-        "toneplayer"
-      ]
+      "enum": ["howl", "toneplayer"]
     },
     "color": {
       "type": "string",

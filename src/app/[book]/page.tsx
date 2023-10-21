@@ -25,7 +25,7 @@ export default function Book({
         setChapters(infos.chapters);
       })
       .catch(() => {
-        // router.push('/404');
+        console.error('oups');
       });
   }, [book]);
 
@@ -41,7 +41,7 @@ export default function Book({
         isOpen={buttonsBarShown}
         onExit={() => {}}
         clickHandler={() => toggleButtonsBar(!buttonsBarShown)}
-        hide={{sound: true, book: true}}
+        hide={{ sound: true, book: true }}
       />
       <Cover book={book} />
       <div
@@ -69,7 +69,6 @@ export default function Book({
           </Link>
         ))}
       </div>
-
     </main>
   );
 }

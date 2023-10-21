@@ -11,9 +11,12 @@ import Loading from 'ballast/app/components/Loading';
 
 import { ReaderContext } from 'ballast/contexts/ReaderContext';
 
+const SPLASH_DURATION = 0;
 export default function Reader() {
-  const [isFirstChunkLoaded, setFirstChunkLoaded] = useState<boolean>(true);
-  const EventService = useRef<EventServiceInstance>(EventServiceBuilder('Page'));
+  const [isFirstChunkLoaded, setFirstChunkLoaded] = useState<boolean>(false);
+  const EventService = useRef<EventServiceInstance>(
+    EventServiceBuilder('Page')
+  );
   let { book, chapter } = useContext(ReaderContext);
 
   const searchParams = useSearchParams();
@@ -27,12 +30,16 @@ export default function Reader() {
     });
   }, [book, chapter, showSoundLines]);
 
+  useEffect(() => {
+    setTimeout(() => setFirstChunkLoaded(true), SPLASH_DURATION)
+  }, []);
+
   return (
     <>
-      {/* <Loading isVisible={!isFirstChunkLoaded} />
-      {isFirstChunkLoaded && ( */}
+      <Loading isVisible={!isFirstChunkLoaded} />
+      {isFirstChunkLoaded && (
         <Chapter bookPath={`/${book}`} chapter={chapter} />
-      {/* )} */}
+      )}
     </>
   );
 }

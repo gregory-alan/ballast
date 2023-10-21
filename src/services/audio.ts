@@ -1,6 +1,8 @@
 import * as Tone from 'tone';
 import { Howl } from 'howler';
 
+import { config } from 'ballast/config';
+
 import {
   AudioResource,
   AudioResourceEventHandlers,
@@ -64,23 +66,6 @@ export const AudioServiceBuilder = () => {
           } else {
             console.error(`Can't play ${resource.slug}: not loaded`);
           }
-          // we could fallback to howler for a default html5 audio for all the vertical cues?
-          // else {
-          //   // we fallback to howler for html5 audio
-          //   resource.kind = 'howl';
-          //   player.
-          //   removeAudioResource(resource.slug);
-          //   const fallbackResource = {
-          //     ...resource,
-          //     onLoad: (resource: AudioResource) =>
-          //     {
-          //       muteAudioResource(resource.slug, false);
-          //       playAudioResource(resource.slug);
-          //     },
-          //     onCreated: console.log,
-          //   }
-          //   createHowlerAudioResource(fallbackResource);
-          // }
           break;
       }
     }
@@ -230,7 +215,7 @@ export const AudioServiceBuilder = () => {
       const { slug, loop, onCreated, onLoad, onError } = sound;
       try {
         const player = new Tone.Player({
-          url: `/sounds/${book}/${slug}.mp3`, // TODO: ${slug}.webm
+          url: `/sounds/${book}/${slug}.${config.player.audioFormat}`,
           loop,
           onload: () => {
             onLoad?.(slug);
@@ -251,7 +236,7 @@ export const AudioServiceBuilder = () => {
         addAudioResource(slug, resource);
         onCreated?.(getAudioResource(slug));
       } catch (e) {
-        console.error('HERE');
+        console.log('❌', e);
       }
     });
   };
@@ -274,7 +259,6 @@ export const AudioServiceBuilder = () => {
         case 'howl':
           return await createHowlerAudioResource(sound, book);
         case 'toneplayer':
-          // TODO: here do something for groups player... should go with Players I guess?
           return await createToneAudioResource(sound, book);
       }
     } catch (slug) {
@@ -380,9 +364,7 @@ export const AudioServiceBuilder = () => {
    * @param dispose
    */
   const pauseAudioResource = (slug: string) => {
-    const resource = getAudioResource(slug);
-    // NOT IMPLEMENTED YET; So far he usage is to use stop and pause the howl, but stop the toneplayers
-    // _pause(resource);
+    // Not used
   };
 
   /**
@@ -438,8 +420,5 @@ export const AudioServiceBuilder = () => {
     startAudioContext,
     stopAllAudioResources,
     stopAudioResource,
-    // setMusicVolume,
-    // setFXVolume,
-    // setGlobalVolume,
   };
 };

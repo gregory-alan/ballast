@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, createContext } from 'react';
+import { createContext } from 'react';
 
 export const ReaderContext = createContext({
   book: '',

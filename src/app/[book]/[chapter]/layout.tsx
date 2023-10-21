@@ -16,7 +16,7 @@ export default function ChapterLayout({
   const chapter = parseInt(params.chapter, 10);
 
   if (isNaN(chapter)) {
-    router.push('/404');
+    router.push('/not-found');
   }
 
   return (
